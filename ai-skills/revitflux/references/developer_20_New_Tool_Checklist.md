@@ -20,7 +20,7 @@
 
 - Nome MCP: `snake_case` (es. `get_element_parameters`)
 - Classe C#: `PascalCase` + suffisso `Tool` (es. `GetElementParametersTool`)
-- Categoria: PascalCase (es. "Elements", "Views", "Materials", "Ifc", "PowerBI")
+- Categoria: PascalCase (es. "Elements", "Views", "Materials", "Ifc")
 
 ## Interfaccia minima
 

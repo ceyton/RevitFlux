@@ -1,6 +1,6 @@
 ---
 name: revitflux
-description: Use when working with RevitFlux operations, MCP tool workflows, Revit model automation, or RevitFlux C# development. Routes Codex to focused references for model operations, safe write workflows, send_code_to_revit escalation, IFC, PowerBI, Obsidian, tool development, net48/net8 compatibility, audit/read-only security, and build/test checks.
+description: Use when working with RevitFlux operations, MCP tool workflows, Revit model automation, or RevitFlux C# development. Routes Codex to focused references for model operations, safe write workflows, send_code_to_revit escalation, IFC, Obsidian, tool development, net48/net8 compatibility, audit/read-only security, and build/test checks.
 ---
 
 # RevitFlux Skill Router
@@ -27,7 +27,6 @@ Queste regole valgono in ogni sessione, indipendentemente dal task:
 | Health/Clash | morning check, warning, clash detection | `operator_01`, `operator_05` |
 | Vista / annotazione | tag, color, dimension, view template | `operator_01`, `operator_06` |
 | IFC | import, link, rebuild, export | `operator_01`, `operator_07` |
-| PowerBI | publish, query, selection, schedule | `operator_01`, `operator_08` |
 | Obsidian / knowledge | vault, note, write-back | `operator_09` |
 | Script consenso | bulk via send_code, complex logic | `operator_10` |
 | Nuovo tool C# | add tool, new MCP tool, schema | `developer_20`, `developer_21`, `developer_22`, `developer_25` |

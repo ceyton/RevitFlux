@@ -12,6 +12,7 @@ public partial class SettingsWindow : Window
     public SettingsWindow()
     {
         InitializeComponent();
+        Icon = IconFactory.CreateConnectionIcon(32, true);
 
         _generalPage = new GeneralSettingsPage();
         _toolsPage = new ToolsSettingsPage();

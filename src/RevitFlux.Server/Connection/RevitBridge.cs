@@ -66,7 +66,7 @@ public sealed class RevitBridge : IDisposable
         {
             return Failure("RevitNotConnected",
                 $"RevitFlux is not reachable on {_host}:{_port} ({ex.Message}). Nothing was run.",
-                "Ask the user to open Revit with a project and click Add-Ins > RevitFlux > RevitFlux Switch " +
+                "Ask the user to open Revit with a project and click RevitFlux Switch on the RevitFlux ribbon tab " +
                 "(it is off each time Revit starts), then retry. If the port was changed, check REVITFLUX_PORT " +
                 "and ~/.revitflux/settings.json.");
         }

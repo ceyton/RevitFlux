@@ -15,7 +15,6 @@
 | `operator_05_Model_Health_Warnings_Clash.md` | `CLAUDE.md` §"Session A — Morning Check" | `WORKFLOWS.md` §"Controllo Qualita Mattutino", `WORKFLOWS.md` §"Clash Detection" |
 | `operator_06_View_And_Annotation_Workflows.md` | `CLAUDE.md` §"Tool Behavioral Notes" | `WORKFLOWS.md` §"Tagging Automatico", `WORKFLOWS.md` §"Colorazione" |
 | `operator_07_IFC_Workflows.md` | `docs/RevitFlux_IFC_Guide.md` | `WORKFLOWS.md` §"IFC" |
-| `operator_08_PowerBI_Workflows.md` | `docs/powerbi-push-architecture-spec.md` | `docs/powerbi-integration-spec.md`, `docs/USER_GUIDE.md` §PBI |
 | `operator_09_Obsidian_Workflows.md` | `docs/superpowers/specs/2026-05-19-revitflux-obsidian-integration-design.md` | — |
 | `operator_10_SendCodeToRevit_Escalation.md` | `CLAUDE.md` §"send_code_to_revit" | `docs/superpowers/specs/2026-04-15-send-code-to-revit-design.md` |
 

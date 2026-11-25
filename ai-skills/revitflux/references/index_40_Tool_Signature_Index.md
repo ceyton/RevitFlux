@@ -15,7 +15,7 @@ grep "^get_element_parameters" tool-schemas.txt
 
 Per listare tutti i tool di una categoria:
 ```bash
-grep -E "^(ifc_|pbi_|workflow_)" tool-schemas.txt
+grep -E "^(ifc_|workflow_)" tool-schemas.txt
 ```
 
 ## Categorie
@@ -25,7 +25,6 @@ grep -E "^(ifc_|pbi_|workflow_)" tool-schemas.txt
 | `get_`, `list_`, `find_`, `analyze_`, `check_`, `export_`, `measure_`, `audit_` | Read-only | `get_project_info`, `analyze_model_statistics` |
 | `set_`, `bulk_`, `sync_`, `create_`, `delete_`, `purge_`, `wipe_`, `rename_`, `modify_`, `override_`, `change_` | Write | `set_element_parameters`, `bulk_modify_parameter_values` |
 | `ifc_*` | IFC integration | `ifc_link`, `ifc_rebuild_walls`, `ifc_export_basic` |
-| `pbi_*` | PowerBI | `pbi_publish_elements`, `pbi_query` |
 | `workflow_*` | Workflow composti | `workflow_model_audit`, `workflow_clash_review` |
 | `cross_app_*` | NavisCortex bridge | `cross_app_selection` |
 | `say_hello`, `get_*` | Meta | Diagnostica, capabilities |

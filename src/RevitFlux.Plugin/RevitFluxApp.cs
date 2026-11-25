@@ -6,7 +6,6 @@ using RevitFlux.Core.Session;
 using RevitFlux.Plugin.Caching;
 using RevitFlux.Plugin.Communication;
 using RevitFlux.Plugin.Discovery;
-using RevitFlux.Plugin.PowerBiLive;
 using RevitFlux.Plugin.Threading;
 using RevitFlux.Plugin.UI;
 using System;
@@ -25,9 +24,6 @@ public class RevitFluxApp : IExternalApplication
     private Autodesk.Revit.UI.PushButton? _connectButton;
     private UI.AutoModeWindow? _autoModeWindow;
     private bool _updateNotificationShown;
-    private PbiSelectHttpListener? _pbiSelectListener;
-    private PbiActionEventHandler? _pbiActionHandler;
-    private ExternalEvent? _pbiActionEvent;
 
     public static RevitFluxApp? Instance { get; private set; }
 
@@ -102,11 +98,6 @@ public class RevitFluxApp : IExternalApplication
                 _router.RegisterToolsFromAssembly(toolsAssembly);
             }
 
-            // Also scan the Plugin assembly itself: a few tools (Power BI Live
-            // auth/REST) live here because they depend on MSAL.NET which is
-            // referenced by the Plugin, not the Tools project.
-            _router.RegisterToolsFromAssembly(Assembly.GetExecutingAssembly());
-
             // Create thread dispatcher for Revit main thread execution
             var executionHandler = new ToolExecutionHandler();
             var externalEvent = ExternalEvent.Create(executionHandler);
@@ -123,11 +114,6 @@ public class RevitFluxApp : IExternalApplication
             // notification window (or OnIdling shows it if Revit is already idle).
             RevitFlux.Plugin.Updates.UpdateChecker.UpdateAvailable += OnUpdateAvailable;
             RevitFlux.Plugin.Updates.UpdateChecker.CheckInBackground();
-
-            // Create the PBI action ExternalEvent (registered once at startup,
-            // used whenever the Power BI Desktop visual sends a pbi-* request)
-            _pbiActionHandler = new PbiActionEventHandler();
-            _pbiActionEvent = ExternalEvent.Create(_pbiActionHandler);
 
             // Create socket service but do NOT start automatically
             _socketService = new SocketService(_router, _port);
@@ -162,8 +148,6 @@ public class RevitFluxApp : IExternalApplication
         try
         {
             ConfirmationHelper.AutoModeChanged -= OnAutoModeChanged;
-            _pbiSelectListener?.Dispose();
-            _pbiSelectListener = null;
             _socketService?.Stop();
             application.ControlledApplication.DocumentOpened -= OnDocumentOpened;
             application.ControlledApplication.DocumentClosing -= OnDocumentClosing;
@@ -202,31 +186,6 @@ public class RevitFluxApp : IExternalApplication
 
             _socketService.Start();
 
-            // Start PBI Desktop → Revit HTTP listener on port 27026
-            if (_pbiSelectListener == null && _pbiActionHandler != null && _pbiActionEvent != null)
-            {
-                var handler = _pbiActionHandler;
-                // Bind the event so the handler can self-raise after every enqueue.
-                // This eliminates the previous shared-pending-state race: each
-                // listener callback now hits the handler's queue, gets its own
-                // completion event, and times out without polluting later requests.
-                handler.BindExternalEvent(_pbiActionEvent);
-
-                _pbiSelectListener = new PbiSelectHttpListener(
-                    new PbiSelectHttpListener.Callbacks(
-                        selection:       (ids, action) => _uiApplication == null ? null : handler.DispatchSelection(ids, action),
-                        color:           items         => _uiApplication == null ? null : handler.DispatchColor(items),
-                        resetOverrides:  ()            => _uiApplication == null ? null : handler.DispatchReset(),
-                        createView:      (ids, name)   => _uiApplication == null ? null : handler.DispatchCreateView(ids, name),
-                        // Rich callbacks: take UniqueIds + DocumentTitle into account.
-                        // Returns a structured (result, errorCode, errorMessage) tuple so
-                        // wrong_document validation can be surfaced cleanly to the visual.
-                        selectionRich:   input => RichDispatch(handler, input, isCreateView: false),
-                        createViewRich:  input => RichDispatch(handler, input, isCreateView: true)),
-                    port: 27026);
-                _pbiSelectListener.Start();
-            }
-
             UpdateConnectionButtonIcon();
             ServiceStateChanged?.Invoke();
         }
@@ -234,39 +193,9 @@ public class RevitFluxApp : IExternalApplication
 
     public void StopService()
     {
-        _pbiSelectListener?.Stop();
-        _pbiSelectListener = null;
         _socketService?.Stop();
         UpdateConnectionButtonIcon();
         ServiceStateChanged?.Invoke();
-    }
-
-    /// <summary>
-    /// Shared rich-dispatch shim: forwards both Select and CreateView to the
-    /// handler's *Rich overload, then unpacks Request.Error into the
-    /// structured listener response.
-    /// </summary>
-    private PbiSelectHttpListener.RichRequestResult RichDispatch(
-        PbiActionEventHandler handler,
-        PbiSelectHttpListener.RichRequestInput input,
-        bool isCreateView)
-    {
-        if (_uiApplication == null)
-            return PbiSelectHttpListener.RichRequestResult.Fail("no_application", "RevitFlux not bound to a UIApplication.");
-
-        var req = isCreateView
-            ? handler.DispatchCreateViewRich(input.ElementIds, input.UniqueIds, input.ViewName, input.DocumentTitle)
-            : handler.DispatchSelectionRich(input.ElementIds, input.UniqueIds, input.Action, input.DocumentTitle);
-
-        // Request.Error is "code:message"; parse and forward.
-        if (!string.IsNullOrEmpty(req.Error))
-        {
-            var sep = req.Error!.IndexOf(':');
-            return sep > 0
-                ? PbiSelectHttpListener.RichRequestResult.Fail(req.Error.Substring(0, sep), req.Error.Substring(sep + 1))
-                : PbiSelectHttpListener.RichRequestResult.Fail(req.Error, req.Error);
-        }
-        return PbiSelectHttpListener.RichRequestResult.Ok(req.Result);
     }
 
     private void UpdateConnectionButtonIcon()
@@ -347,12 +276,14 @@ public class RevitFluxApp : IExternalApplication
 
     private void CreateRibbonPanel(UIControlledApplication application)
     {
-        RibbonPanel panel = application.CreateRibbonPanel("RevitFlux");
+        const string tabName = "RevitFlux";
+        application.CreateRibbonTab(tabName);
+        RibbonPanel panel = application.CreateRibbonPanel(tabName, "AI Assistant");
         string assemblyLocation = Assembly.GetExecutingAssembly().Location;
 
         // Connection toggle button
         var connectBtnData = new PushButtonData(
-            "ID_CORTEX_TOGGLE", "RevitFlux\r\nSwitch",
+            "ID_REVITFLUX_TOGGLE", "RevitFlux\r\nSwitch",
             assemblyLocation, "RevitFlux.Plugin.Commands.ToggleConnection");
         connectBtnData.ToolTip = "Start RevitFlux server";
         connectBtnData.Image = IconFactory.CreateConnectionIcon(16, false);
@@ -361,39 +292,12 @@ public class RevitFluxApp : IExternalApplication
 
         // Settings button
         var settingsBtn = new PushButtonData(
-            "ID_CORTEX_SETTINGS", "Settings",
+            "ID_REVITFLUX_SETTINGS", "Settings",
             assemblyLocation, "RevitFlux.Plugin.Commands.OpenSettings");
         settingsBtn.ToolTip = "RevitFlux settings";
         settingsBtn.Image = IconFactory.CreateSettingsIcon(16);
         settingsBtn.LargeImage = IconFactory.CreateSettingsIcon(32);
         panel.AddItem(settingsBtn);
-
-        // Power BI export button
-        var powerBiBtn = new PushButtonData(
-            "ID_CORTEX_POWERBI", "Power BI\r\nExport",
-            assemblyLocation, "RevitFlux.Plugin.Commands.OpenPowerBiExport");
-        powerBiBtn.ToolTip = "Esporta dati e parametri in CSV per Power BI";
-        powerBiBtn.LongDescription =
-            "Apre il wizard di export Power BI: scegli categorie e parametri, " +
-            "salva profili riutilizzabili, abilita auto-export al salvataggio e " +
-            "registra il protocol handler revitflux:// per drillthrough da PBI a Revit.";
-        powerBiBtn.Image = IconFactory.CreatePowerBiIcon(16);
-        powerBiBtn.LargeImage = IconFactory.CreatePowerBiIcon(32);
-        panel.AddItem(powerBiBtn);
-
-        // Send support report button
-        var supportBtn = new PushButtonData(
-            "ID_CORTEX_SUPPORT", "Send log\r\nto support",
-            assemblyLocation, "RevitFlux.Plugin.Commands.SendSupportReport");
-        supportBtn.ToolTip = "Send a bug report to RevitFlux support";
-        supportBtn.LongDescription =
-            "Collects recent audit logs, token-usage log, settings, and the most recent " +
-            "Revit journal into a ZIP on the desktop, then opens a pre-filled Outlook " +
-            "message addressed to support. Add a short description of the problem " +
-            "and click Send. No personal data is sent beyond what's in the logs.";
-        supportBtn.Image = IconFactory.CreateSupportIcon(16);
-        supportBtn.LargeImage = IconFactory.CreateSupportIcon(32);
-        panel.AddItem(supportBtn);
 
         // Note: Auto mode is stopped via a floating AutoModeWindow shown while
         // active (see OnAutoModeChanged), not a ribbon button.

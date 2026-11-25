@@ -20,7 +20,7 @@ builder.Services
         };
         options.ServerInstructions =
             "RevitFlux exposes hundreds of dedicated Revit tools. ALWAYS prefer the dedicated tool that matches the task " +
-            "(parameters, filtering/queries, model statistics, views, schedules, tags, dimensions, rebar, steel, IFC, Power BI). " +
+            "(parameters, filtering/queries, model statistics, views, schedules, tags, dimensions, rebar, steel, IFC). " +
             "Destructive tools accept a dryRun option — preview before committing. " +
             "send_code_to_revit is a LAST RESORT: never select it autonomously. Escalate to it only when no dedicated tool covers " +
             "the operation (exotic geometry creation, read-only inspection of an uncovered Revit API, or a one-off operation no " +

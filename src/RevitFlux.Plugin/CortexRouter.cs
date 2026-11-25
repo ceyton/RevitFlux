@@ -32,7 +32,7 @@ public class CortexRouter
 
     // UI-thread id, captured when the dispatcher is wired in OnStartup.
     // Used to detect callers that are ALREADY on the UI thread (e.g. WPF
-    // button handlers like the Power BI Export panel) so we can run the
+    // button handlers) so we can run the
     // tool inline instead of dispatching via ExternalEvent — which would
     // deadlock because Revit's external-event machinery can only fire when
     // the UI thread is idle, and a UI-thread caller blocked in
@@ -57,18 +57,6 @@ public class CortexRouter
         "clash_detection", "lines_per_view_count",
         "ifc_get_", "ifc_list_", "ifc_export_", "ifc_validate_",
         "ifc_analyze_", "ifc_compare_"
-    };
-
-    /// <summary>
-    /// Write-named tools vetted for inline UI-thread execution: they open no
-    /// Transaction and show no Revit UI (verified at adoption time). The inline
-    /// path runs OUTSIDE a Revit API context (modeless WPF handlers), where a
-    /// Transaction would throw — keep this list minimal and audited.
-    /// </summary>
-    private static readonly HashSet<string> InlineUiThreadAllowedTools =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        "push_to_powerbi",
     };
 
     private sealed class ToolSafetyRegistration
@@ -222,8 +210,7 @@ public class CortexRouter
             //  - From a background thread (socket worker, listener, etc.):
             //    go through ExternalEvent so the tool runs on Revit's UI
             //    thread (Revit API requirement).
-            //  - From the UI thread itself (e.g. PowerBiExportWindow's
-            //    "Esporta" button handler): run inline. Going through
+            //  - From the UI thread itself (e.g. a WPF button handler): run inline. Going through
             //    ExternalEvent here would deadlock — see _uiThreadId comment.
             bool onUiThread = _dispatcher != null
                 && System.Threading.Thread.CurrentThread.ManagedThreadId == _uiThreadId;
@@ -233,12 +220,11 @@ public class CortexRouter
                 var timeoutSeconds = (tool as ICommandTimeoutTool)?.CommandTimeoutSeconds ?? 120;
                 result = _dispatcher.Execute(tool, input, _session, timeoutSeconds * 1000);
             }
-            else if (onUiThread && !IsToolReadOnly(toolName)
-                     && !InlineUiThreadAllowedTools.Contains(toolName))
+            else if (onUiThread && !IsToolReadOnly(toolName))
             {
                 // The inline path runs on the UI thread but outside a Revit API
                 // context: a tool opening a Transaction here would throw inside
-                // Revit. Only read-only tools and the vetted allowlist may pass.
+                // Revit. Only read-only tools may pass.
                 result = CortexResult<object>.Fail(CortexErrorCode.PermissionDenied,
                     $"Tool '{toolName}' cannot run inline on the UI thread outside a Revit API context",
                     suggestion: "Call the tool through the MCP/TCP bridge so it is dispatched via ExternalEvent.");

@@ -59,9 +59,6 @@
     <PackageReference Include="Nice3point.Revit.Toolkit" Version="$(RevitVersion).*" />
     <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="$(RevitApiVersion)" />
     <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="$(RevitApiVersion)" />
-    <!-- Microsoft Identity Client for Power BI Live device-code auth.
-         4.62 supports both net48 (with netstandard2.0 surface) and net8. -->
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.62.0" />
   </ItemGroup>
 
   <!-- Roslyn Scripting for send_code_to_revit (net8+ only) -->
@@ -92,18 +89,20 @@
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Net.Http" />
     <Reference Include="Microsoft.CSharp" />
-    <!-- DPAPI (ProtectedData) is in a separate package on net48; net8 has it built-in. -->
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\RevitFlux.Core\RevitFlux.Core.csproj" />
   </ItemGroup>
-  <!-- With the 4.8 targeting pack but not 4.8.1, MSBuild adds a second mscorlib from the
-       missing 4.8.1 folder. csc never opens it, but WPF markup compilation fails on it. -->
-  <Target Name="RemoveMissingMscorlib" BeforeTargets="MarkupCompilePass1;MarkupCompilePass2" Condition="'$(TargetFramework)' == 'net48'">
+  <!-- With the 4.8 targeting pack but not 4.8.1, MSBuild can add an mscorlib reference from the
+       missing 4.8.1 folder, which breaks WPF markup compilation. Resolve it from 4.8 instead. -->
+  <Target Name="FixMissingMscorlib" BeforeTargets="ResolveAssemblyReferences" Condition="'$(TargetFramework)' == 'net48'">
     <ItemGroup>
-      <ReferencePath Remove="@(ReferencePath)" Condition="'%(Filename)' == 'mscorlib' And !Exists('%(FullPath)')" />
+      <_MissingMscorlib Include="@(_ExplicitReference)" Condition="!Exists('%(FullPath)')" />
+    </ItemGroup>
+    <ItemGroup Condition="'@(_MissingMscorlib)' != ''">
+      <_ExplicitReference Remove="@(_MissingMscorlib)" />
+      <Reference Include="mscorlib" />
     </ItemGroup>
   </Target>
 </Project>

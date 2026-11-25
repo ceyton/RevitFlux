@@ -14,18 +14,18 @@ An MCP server and add-in that lets AI assistants work with Autodesk Revit.
 - New tool: `create_filled_regions` (batch, one undo step).
 - Tests no longer write to the user's audit log.
 - Connection failures return a clear message (for example, when the Revit switch is off).
-- Upstream update checks, support address and Azure app id are removed.
+- Dedicated RevitFlux ribbon tab with its own icons.
+- Power BI features, support reports and upstream update checks are removed.
 
 ## Side by side with RevitCortex
 
 | | RevitCortex | RevitFlux |
 |---|---|---|
 | Port | 8080 | 8090 |
-| Power BI visual port | 27016 | 27026 |
 | Data folder | `~/.revitcortex` | `~/.revitflux` |
 | Port variable | `REVITCORTEX_PORT` | `REVITFLUX_PORT` |
 
-Add-in id, assembly names and storage schema also differ. The RevitCortex Power BI visual does not connect to RevitFlux.
+Add-in id, assembly names and storage schema also differ.
 
 ## Build, test, deploy
 

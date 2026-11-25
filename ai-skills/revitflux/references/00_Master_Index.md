@@ -16,7 +16,6 @@
 | `operator_05_Model_Health_Warnings_Clash.md` | Morning check, get_warnings, clash detection |
 | `operator_06_View_And_Annotation_Workflows.md` | Tag, color, dimensions, view templates |
 | `operator_07_IFC_Workflows.md` | Link IFC, rebuild, export IFC |
-| `operator_08_PowerBI_Workflows.md` | Push elements/schedules, query, selection roundtrip |
 | `operator_09_Obsidian_Workflows.md` | Vault snapshot, command note, write-back |
 | `operator_10_SendCodeToRevit_Escalation.md` | Quando proporre script vs tool nativo |
 

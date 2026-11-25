@@ -7,7 +7,7 @@ description: |
   Use when working with RevitFlux operations, MCP tool workflows,
   Revit model automation, or RevitFlux C# development. Routes Codex
   to focused references for model operations, safe write workflows,
-  send_code_to_revit escalation, IFC, PowerBI, Obsidian, tool development,
+  send_code_to_revit escalation, IFC, Obsidian, tool development,
   net48/net8 compatibility, audit/read-only security, and build/test checks.
 
 references_dir: references
