@@ -8,16 +8,32 @@ namespace RevitFlux.Plugin.Commands;
 [Transaction(TransactionMode.Manual)]
 public class OpenSettings : IExternalCommand
 {
+    private static SettingsWindow? _window;
+
     public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
     {
-        var window = new SettingsWindow();
-        _ = new System.Windows.Interop.WindowInteropHelper(window)
+        var app = RevitFluxApp.Instance;
+        if (app == null)
         {
-            Owner = System.Diagnostics.Process.GetCurrentProcess().MainWindowHandle
-        };
-        window.WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-        window.Show();
+            message = "RevitFlux is not initialized.";
+            return Result.Failed;
+        }
+        if (_window != null)
+        {
+            if (_window.WindowState == System.Windows.WindowState.Minimized)
+                _window.WindowState = System.Windows.WindowState.Normal;
+            _window.Activate();
+            return Result.Succeeded;
+        }
 
+        var host = new RevitSettingsHost(app, commandData.Application.Application.VersionNumber);
+        _window = new SettingsWindow(host);
+        _ = new System.Windows.Interop.WindowInteropHelper(_window)
+        {
+            Owner = commandData.Application.MainWindowHandle
+        };
+        _window.Closed += (_, _) => _window = null;
+        _window.Show();
         return Result.Succeeded;
     }
 }

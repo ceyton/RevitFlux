@@ -22,6 +22,7 @@ public class RevitFluxApp : IExternalApplication
     private UIApplication? _uiApplication;
     private int _port = 8090;
     private Autodesk.Revit.UI.PushButton? _connectButton;
+    private ExternalEvent? _toggleEvent;
     private UI.AutoModeWindow? _autoModeWindow;
 
     public static RevitFluxApp? Instance { get; private set; }
@@ -108,6 +109,8 @@ public class RevitFluxApp : IExternalApplication
             LoadReadOnlyMode();
             LoadPort();
 
+            _toggleEvent = ExternalEvent.Create(new UI.ToggleServiceHandler());
+
             // Create socket service but do NOT start automatically
             _socketService = new SocketService(_router, _port);
 
@@ -183,6 +186,9 @@ public class RevitFluxApp : IExternalApplication
             ServiceStateChanged?.Invoke();
         }
     }
+
+    /// <summary>Asks Revit to switch the service. Safe from a modeless window.</summary>
+    public void RequestToggle() => _toggleEvent?.Raise();
 
     public void StopService()
     {

@@ -42,6 +42,7 @@ public partial class AutoModeWindow : Window
     {
         _ownerHandle = ownerHandle;
         InitializeComponent();
+        Theme.Apply(this, RevitSettingsHost.IsRevitDark);
         AttachOwner();
     }
 

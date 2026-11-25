@@ -43,7 +43,7 @@ public class SendCodeToRevitTool : ICortexTool, ICommandTimeoutTool
         {
             return CortexResult<object>.Fail(
                 CortexErrorCode.PermissionDenied,
-                "send_code_to_revit is disabled in this installation. STOP: do NOT retry this tool. Ask the user to enable code execution via Settings > Tools (or \"EnableCodeExecution\": true in ~/.revitflux/settings.json), or solve the task with dedicated tools instead.",
+                "send_code_to_revit is disabled in this installation. STOP: do NOT retry this tool. Ask the user to enable code execution via RevitFlux Settings > Safety (or \"EnableCodeExecution\": true in ~/.revitflux/settings.json), or solve the task with dedicated tools instead.",
                 suggestion: "Do not retry send_code_to_revit. Either ask the user to enable it in Settings, or use native tools (ai_element_filter, export_elements_data, bulk_modify_parameter_values, etc.) for the same task.");
         }
 

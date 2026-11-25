@@ -158,7 +158,7 @@ public class CortexRouter
         if (_disabledTools.Contains(toolName))
             return CortexResult<object>.Fail(CortexErrorCode.InvalidInput,
                 $"Tool '{toolName}' is disabled",
-                suggestion: "Enable it in RevitFlux Settings > Tools");
+                suggestion: "Enable it in RevitFlux RevitFlux Settings > Safety");
 
         if (tool.RequiresDocument && _session.Store.Get<object>("activeDocument") == null)
             return CortexResult<object>.Fail(CortexErrorCode.InvalidInput,
