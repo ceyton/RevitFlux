@@ -16,3 +16,6 @@ MCP server + Revit add-in. Based on RevitCortex (MIT): keep LICENSE and NOTICE.m
 - Never return a truncated list without saying so; counters must stay true.
 - `send_code_to_revit` stays off by default, sandboxed, and confirmed unless the user opted out (`SkipScriptConfirmation`).
 - All text in English.
+- Test live only in a blank, unsaved project (check `get_project_info` first), never in a project model.
+- Failed calls, scripts and `log_issue` reports go to `~/.revitflux/issues` (`IssueLog.cs`). They hold project data: never commit or publish them. Review with `skills/revitflux-issues`.
+- Private notes and current state: `CLAUDE.local.md` (git-ignored), if present. Read it first and update it at the end of a session.
