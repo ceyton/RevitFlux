@@ -244,7 +244,7 @@ public class GetGeometryTool : ICortexTool
     {
         foreach (var loop in face.GetEdgesAsCurveLoops())
         {
-            var area = GeometryTools.AreaM2(loop.SelectMany(c => c.Tessellate().Take(Math.Max(1, c.Tessellate().Count - 1))).ToList(), u, v);
+            var area = GeometryTools.AreaM2(loop, u, v);
             if (area < min || area > max) continue;
             items.Add(new
             {

@@ -52,6 +52,9 @@ public static class ToolResponseShaper
     {
         var elements = payload["elements"]?.Children<JObject>().Select(el =>
         {
+            // A missing element must not look like one without parameters.
+            if (el["error"] is { Type: not JTokenType.Null }) return (JObject)el.DeepClone();
+
             var parameters = el["parameters"]?.Children<JObject>()
                 .Where(p => p["hasValue"]?.Value<bool>() == true)
                 .Select(p => new JObject

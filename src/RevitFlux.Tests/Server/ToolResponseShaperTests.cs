@@ -38,6 +38,14 @@ public class ToolResponseShaperTests
         Assert.Null(shaped["items"]![0]!["uniqueId"]);
     }
 
+    [Fact]
+    public void GetElementParametersCompact_KeepsPerElementErrors()
+    {
+        var payload = JObject.Parse("""{ "message": "m", "elements": [ { "elementId": 9, "error": "Element not found" } ] }""");
+        var shaped = ToolResponseShaper.Shape("get_element_parameters", payload, compact: true, summaryOnly: false);
+        Assert.Equal("Element not found", shaped["elements"]![0]!["error"]!.Value<string>());
+    }
+
     [Theory]
     [InlineData("get_available_family_types")]
     [InlineData("get_element_parameters")]

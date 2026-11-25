@@ -43,6 +43,7 @@ public class ExplainVisibilityTool : ICortexTool
                 if (e == null) { results.Add(new { id, inView = false, reasons = new List<string> { "element not found" } }); continue; }
                 var reasons = Safe(() => Reasons(doc, view, e));
                 var inView = visible.Contains(e.Id);
+                if (inView) reasons.RemoveAll(x => x.StartsWith("starts above", StringComparison.Ordinal));
                 if (!inView && reasons.Count == 0) reasons.Add("no cause found; it may be covered, outside the far clip, or too small at this scale");
                 results.Add(new { id, inView, reasons });
             }
@@ -143,6 +144,8 @@ public class ExplainVisibilityTool : ICortexTool
             var hi = ceiling ? Max(top, depth) : top;
             var lo = ceiling ? cut : depth;
             if (hi != null && box.Min.Z > hi.Value) r.Add($"above the view range (bottom {GeometryTools.Round(box.Min.Z)}, limit {GeometryTools.Round(hi.Value)} mm)");
+            if (!ceiling && cut != null && box.Min.Z > cut.Value && (hi == null || box.Min.Z <= hi.Value))
+                r.Add($"starts above the cut plane ({GeometryTools.Round(cut.Value)} mm), so most categories do not show in plan");
             if (lo != null && box.Max.Z < lo.Value) r.Add($"below the view range (top {GeometryTools.Round(box.Max.Z)}, limit {GeometryTools.Round(lo.Value)} mm)");
         }
         return r;

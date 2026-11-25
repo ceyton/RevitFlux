@@ -73,12 +73,25 @@ internal static class GeometryTools
         return path;
     }
 
-    public static double AreaM2(IList<XYZ> points, XYZ u, XYZ v)
+    /// <summary>Area enclosed by a closed loop in the plane of u and v; arcs are exact.</summary>
+    public static double AreaM2(IEnumerable<Curve> loop, XYZ u, XYZ v)
     {
-        double sum = 0;
-        for (int i = 0, j = points.Count - 1; i < points.Count; j = i++)
+        double sum = 0; // twice the signed area
+        foreach (var c in loop)
         {
-            sum += points[j].DotProduct(u) * points[i].DotProduct(v) - points[i].DotProduct(u) * points[j].DotProduct(v);
+            var points = c is Line || c is Arc ? new List<XYZ> { c.GetEndPoint(0), c.GetEndPoint(1) } : c.Tessellate().ToList();
+            for (var i = 0; i < points.Count - 1; i++)
+            {
+                sum += points[i].DotProduct(u) * points[i + 1].DotProduct(v) - points[i + 1].DotProduct(u) * points[i].DotProduct(v);
+            }
+            if (c is Arc arc)
+            {
+                var chord = points[1] - points[0];
+                var bulge = c.Evaluate(0.5, true) - points[0];
+                var side = chord.DotProduct(u) * bulge.DotProduct(v) - chord.DotProduct(v) * bulge.DotProduct(u);
+                var angle = arc.Length / arc.Radius;
+                sum -= Math.Sign(side) * arc.Radius * arc.Radius * (angle - Math.Sin(angle));
+            }
         }
         return Math.Abs(sum / 2) * 0.09290304;
     }
