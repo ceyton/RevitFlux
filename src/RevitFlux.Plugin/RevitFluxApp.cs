@@ -305,7 +305,9 @@ public class RevitFluxApp : IExternalApplication
     private void OnDocumentOpened(object? sender, DocumentOpenedEventArgs args)
     {
         var doc = args.Document;
-        if (doc == null) return;
+        // Linked and background documents must not replace the one the user works in;
+        // ViewActivated follows real switches.
+        if (doc == null || doc.IsLinked || ActiveDocument != null) return;
 
         var locale = LocaleDetector.Detect(doc);
         _router!.OnDocumentChanged(doc, locale);
@@ -319,10 +321,16 @@ public class RevitFluxApp : IExternalApplication
             $"Capabilities: {_router!.GetAvailableToolNames().Count} tools available");
     }
 
+    private Document? ActiveDocument => _session?.Store.Get<object>("activeDocument") as Document;
+
     private void OnDocumentClosing(object? sender, DocumentClosingEventArgs args)
     {
         try
         {
+            // A family or other background document closing must not stop the service.
+            var active = ActiveDocument;
+            if (active != null && !active.Equals(args.Document)) return;
+
             // Stop the TCP server to prevent stale commands reaching a different document
             if (_socketService != null && _socketService.IsRunning)
             {
