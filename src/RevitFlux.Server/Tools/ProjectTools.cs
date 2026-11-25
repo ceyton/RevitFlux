@@ -70,12 +70,12 @@ public static class ProjectTools
         return result.ToLean();
     }
 
-    [McpServerTool(Name = "get_available_family_types"), Description("List available family types in the Revit project.")]
+    [McpServerTool(Name = "get_available_family_types"), Description("List family types. Filter by category or name; totalCount and truncated tell whether the list is complete.")]
     public static async Task<string> GetAvailableFamilyTypes(
         RevitConnectionManager revit,
         [Description("Filter by category names (OST codes, English, or localized labels)")] string[]? categoryList = null,
         [Description("Case-insensitive substring filter on family or type name")] string? familyNameFilter = null,
-        [Description("Max types to return. Default: 100")] int? limit = null,
+        [Description("Max types to return. Default: 500")] int? limit = null,
         [Description("Return a compact payload without uniqueId-heavy rows. Default: true")] bool compact = true,
         CancellationToken ct = default)
     {

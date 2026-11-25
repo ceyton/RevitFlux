@@ -28,6 +28,10 @@ public static class ToolResponseShaper
             return payload;
         }
 
+        // Never reshape a failure: it would look like a successful empty result.
+        if (payload is JObject failure && failure["success"]?.Type == JTokenType.Boolean && !failure["success"]!.Value<bool>())
+            return payload;
+
         return toolName switch
         {
             "get_available_family_types" => ShapeAvailableFamilyTypes(payload),
@@ -91,7 +95,10 @@ public static class ToolResponseShaper
 
     private static JToken ShapeAvailableFamilyTypes(JToken payload)
     {
-        var items = payload.Children<JObject>()
+        // Errors carry no items and must pass through. Plugins before 0.2.1 returned a bare array.
+        var source = payload as JArray ?? (payload as JObject)?["items"] as JArray;
+        if (source == null) return payload;
+        var items = source.Children<JObject>()
             .Select(item => new JObject
             {
                 ["familyTypeId"] = item["familyTypeId"],
@@ -100,6 +107,13 @@ public static class ToolResponseShaper
                 ["category"] = item["category"]
             })
             .ToArray();
+
+        if (payload is JObject complete)
+        {
+            var result = (JObject)complete.DeepClone();
+            result["items"] = new JArray(items);
+            return result;
+        }
 
         return new JObject
         {

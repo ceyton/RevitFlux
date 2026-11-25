@@ -23,6 +23,39 @@ public class ToolResponseShaperTests
     }
 
     [Fact]
+    public void ShapeAvailableFamilyTypesCompact_KeepsTotals()
+    {
+        var payload = JObject.Parse("""
+        { "totalCount": 900, "count": 1, "truncated": true, "countByCategory": { "Doors": 900 },
+          "items": [ { "familyTypeId": 1, "uniqueId": "abc", "familyName": "Door", "typeName": "A", "category": "Doors" } ] }
+        """);
+
+        var shaped = ToolResponseShaper.Shape("get_available_family_types", payload, compact: true, summaryOnly: false);
+
+        Assert.Equal(900, shaped["totalCount"]!.Value<int>());
+        Assert.True(shaped["truncated"]!.Value<bool>());
+        Assert.Equal(900, shaped["countByCategory"]!["Doors"]!.Value<int>());
+        Assert.Null(shaped["items"]![0]!["uniqueId"]);
+    }
+
+    [Theory]
+    [InlineData("get_available_family_types")]
+    [InlineData("get_element_parameters")]
+    [InlineData("get_room_openings")]
+    [InlineData("get_materials")]
+    [InlineData("export_room_data")]
+    [InlineData("audit_families")]
+    [InlineData("get_elements_in_spatial_volume")]
+    [InlineData("list_schedulable_fields")]
+    [InlineData("get_linked_file_instances")]
+    public void Compact_PassesErrorsThrough(string tool)
+    {
+        var payload = JObject.Parse("""{ "success": false, "error": { "code": "InvalidInput", "message": "x" } }""");
+        var shaped = ToolResponseShaper.Shape(tool, payload, compact: true, summaryOnly: false);
+        Assert.Equal("InvalidInput", shaped["error"]!["code"]!.Value<string>());
+    }
+
+    [Fact]
     public void ShapeSchedulableFieldsSummaryOnly_ReturnsNamesOnly()
     {
         var payload = JObject.Parse("""

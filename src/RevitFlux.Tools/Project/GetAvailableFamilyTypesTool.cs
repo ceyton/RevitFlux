@@ -30,7 +30,7 @@ public class GetAvailableFamilyTypesTool : ICortexTool
 
         var categoryList     = input["categoryList"]?.ToObject<List<string>>() ?? new List<string>();
         var familyNameFilter = input["familyNameFilter"]?.Value<string>() ?? "";
-        var limit            = input["limit"]?.Value<int>() ?? 100;
+        var limit            = input["limit"]?.Value<int>() ?? 500;
 
         try
         {
@@ -105,7 +105,8 @@ public class GetAvailableFamilyTypesTool : ICortexTool
                 });
             }
 
-            var result = allElements.Take(limit).Select(et =>
+            var matches = allElements.ToList();
+            var items = matches.Take(Math.Max(0, limit)).Select(et =>
             {
                 var familyName = et is FamilySymbol fs
                     ? fs.FamilyName
@@ -126,7 +127,19 @@ public class GetAvailableFamilyTypesTool : ICortexTool
                 };
             }).ToList();
 
-            return CortexResult<object>.Ok(result);
+            // Counters describe all matches, so a limited list is never mistaken for the total.
+            var truncated = items.Count < matches.Count;
+            return CortexResult<object>.Ok(new
+            {
+                totalCount = matches.Count,
+                count = items.Count,
+                truncated,
+                countByCategory = truncated
+                    ? matches.GroupBy(et => et.Category?.Name ?? "").OrderByDescending(g => g.Count())
+                        .ToDictionary(g => g.Key, g => g.Count())
+                    : null,
+                items
+            });
         }
         catch (Exception ex)
         {
