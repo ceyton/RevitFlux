@@ -1,7 +1,7 @@
 # RevitCortex — Bulk Test completo (tutti i comandi)
 
 **Data:** 2026-05-29
-**Modello:** `Snowdon Towers Sample Architectural_luigi.dattilo7VWCL.rvt` (workshared, 3 fasi, ~37.000 elementi)
+**Modello:** `Snowdon Towers Sample Architectural.rvt` (workshared, 3 fasi, ~37.000 elementi)
 **Lingua rilevata:** inglese (`Comments`, `Type Name`, `Family Name`)
 **Tool totali nel server:** 175
 **Chiamate di test eseguite:** 94 (52 read-only + 24 write/create + 18 gruppi rimanenti)

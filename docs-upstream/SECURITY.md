@@ -1,7 +1,7 @@
 # RevitCortex -- Analisi di Sicurezza
 
 **Data:** 2026-04-11
-**Autore:** Luigi Dattilo
+**Autore:** autore upstream (vedi LICENSE)
 **Versione:** 1.0
 
 ---
@@ -85,7 +85,7 @@ Con l'integrazione `PowerBiLive` (Pipeline B) e `PbiTriggerRefreshTool` (Opzione
 
 I dati del modello Revit trasmessi via RevitCortex raggiungono ora **tre destinazioni cloud**:
 1. **Anthropic** (Claude/LLM): parametri e descrizioni inviati nelle prompt. Vedi DPA Anthropic.
-2. **Microsoft OneDrive / SharePoint**: file CSV scritti nella cartella OneDrive locale e sincronizzati in cloud. Soggetto alla DPA Microsoft 365 del tenant GPA.
+2. **Microsoft OneDrive / SharePoint**: file CSV scritti nella cartella OneDrive locale e sincronizzati in cloud. Soggetto alla DPA Microsoft 365 del tenant Contoso.
 3. **Microsoft Power BI Service**: righe aggregate inviate via REST API al workspace. Stesso tenant M365 — trattamento interno all'organizzazione.
 
 Per tutte e tre: base giuridica = legittimo interesse professionale / esecuzione contratto con il cliente. Se i modelli contengono dati riferibili a persone fisiche (es. dati catastali nominativi), documentare il flusso nel registro trattamenti GDPR.

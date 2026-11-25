@@ -4,7 +4,7 @@
 
 Campagna eseguita su Revit aperto con modello `Snowdon Towers`.
 
-- File modello: `C:\Users\luigi.dattilo\Documents\Snowdon Towers Sample Architectural_luigi.dattilo7VWCL.rvt`
+- File modello: `C:\Users\<user>\Documents\Snowdon Towers Sample Architectural.rvt`
 - RevitCortex: porta `8080`, `ReadOnlyMode=false`, locale runtime `en`
 - Vista attiva durante la suite: `Cover` (`DrawingSheet`)
 - Copertura: oltre 120 invocazioni, circa 85 comandi unici o varianti significative

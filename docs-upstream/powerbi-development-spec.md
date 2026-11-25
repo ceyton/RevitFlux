@@ -109,16 +109,16 @@ Problema: Phase 0 richiede gia `Dataset.ReadWrite.All`, `Workspace.Read.All`, `R
 
 Decisione richiesta:
 
-- Per prototipo interno: mantenere gli scope attuali se GPA li consente.
+- Per prototipo interno: mantenere gli scope attuali se Contoso li consente.
 - Per rilascio piu ampio: valutare consenso progressivo o app registration custom.
 - Documentare chiaramente il failure mode `AADSTS65001` come richiesta admin consent.
 
 Esito validato 2026-05-11:
 
-- Il ClientId well-known `871c010f-5e61-4fb1-83ac-98610a7e9110` non e utilizzabile sul tenant GPA: fallisce con AADSTS65002.
-- La strada corretta per GPA e app registration custom single-tenant:
-  - `ClientId = 05d231e9-d720-4c54-8ecd-93a85dbef40b`
-  - `TenantId = 53372e72-8a4d-4a86-8745-257d91a1aafc`
+- Il ClientId well-known `871c010f-5e61-4fb1-83ac-98610a7e9110` non e utilizzabile sul tenant Contoso: fallisce con AADSTS65002.
+- La strada corretta per Contoso e app registration custom single-tenant:
+  - `ClientId = <your-client-id>`
+  - `TenantId = <your-tenant-id>`
 - Permessi delegati Power BI concessi con admin consent:
   - `Dataset.ReadWrite.All`
   - `Report.Read.All`
@@ -690,7 +690,7 @@ Requisiti:
 
 Deliverable:
 
-- Test reale device-code con account GPA.
+- Test reale device-code con account Contoso.
 - Fix/decisione UX TaskDialog device-code.
 - Harden protocol handler.
 - Definizione enforcement `AllowExternalWrites`.
@@ -805,7 +805,7 @@ dotnet build -c "Debug R27" src/RevitCortex.Plugin/RevitCortex.Plugin.csproj
 2. Cortex Switch ON.
 3. `pbi_check_auth(signIn=false)`.
 4. `pbi_check_auth(signIn=true)`.
-5. Completare login GPA.
+5. Completare login Contoso.
 6. `pbi_list_workspaces`.
 7. Riavviare Revit.
 8. `pbi_check_auth(signIn=false)` deve tornare signed in.
@@ -835,7 +835,7 @@ dotnet build -c "Debug R27" src/RevitCortex.Plugin/RevitCortex.Plugin.csproj
 
 | ID | Decisione | Default consigliato |
 |---|---|---|
-| D-01 | Client ID pubblico vs app registration GPA | Pubblico per test, app GPA per produzione |
+| D-01 | Client ID pubblico vs app registration Contoso | Pubblico per test, app Contoso per produzione |
 | D-02 | Scope OAuth progressivi vs tutti subito | Tutti subito per prototipo, progressivi o app custom per rollout |
 | D-03 | Workspace unico vs per progetto | Workspace unico, dataset per progetto |
 | D-04 | Replace come delete rows o recreate dataset | Delete rows per tabella |

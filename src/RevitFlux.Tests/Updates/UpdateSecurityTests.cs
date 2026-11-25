@@ -22,11 +22,11 @@ public class UpdateSecurityTests : IDisposable
     // --- C5: download URL host allowlist ---
 
     [Theory]
-    [InlineData("https://raw.githubusercontent.com/LuDattilo/revitflux-releases/main/latest.zip")]
-    [InlineData("https://github.com/LuDattilo/x/releases/download/v1/latest.zip")]
+    [InlineData("https://raw.githubusercontent.com/owner/revitflux-releases/main/latest.zip")]
+    [InlineData("https://github.com/owner/x/releases/download/v1/latest.zip")]
     [InlineData("https://1drv.ms/u/s!AbCdEf")]
     [InlineData("https://onedrive.live.com/download?cid=1&resid=2")]
-    [InlineData("https://gpapartners.sharepoint.com/sites/x/latest.zip")]
+    [InlineData("https://contoso.sharepoint.com/sites/x/latest.zip")]
     public void IsTrustedDownloadUrl_TrustedHosts_True(string url)
         => Assert.True(UpdateChecker.IsTrustedDownloadUrl(url));
 

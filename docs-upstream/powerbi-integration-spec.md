@@ -315,7 +315,7 @@ Il pattern è:
   (`871c010f-5e61-4fb1-83ac-98610a7e9110`), non richiede app registration
   sul tenant
 - Override consigliato per produzione: app registration custom sul tenant
-  GPA → richiede 1 ticket IT, dà branding/audit migliori
+  Contoso → richiede 1 ticket IT, dà branding/audit migliori
 
 **Tenant**: default `organizations` (qualunque tenant work M365, esclude
 account personali). Override possibile con tenant ID specifico.
@@ -386,7 +386,7 @@ Ogni invocazione di tool PBI scrive una riga JSONL in `~/.revitcortex/audit.json
 {
   "ts": "2026-05-09T13:42:11.123Z",
   "tool": "pbi_publish_elements",
-  "user": "luigi.dattilo@gpapartners.com",
+  "user": "user@example.com",
   "workspace_id": "abc-123",
   "dataset_id": "def-456",
   "table": "Elements",
@@ -616,8 +616,8 @@ registration custom in caso di tenant restrittivo.
 2. **Device-code flow**: chiamare `pbi_check_auth` con `signIn=true`.
    Atteso: TaskDialog in Revit mostra URL + codice; bottone "Apri il
    browser ora" lancia il default browser; utente completa login con
-   account GPA; al ritorno la TaskDialog si chiude; risposta MCP contiene
-   `{"signedIn": true, "username": "luigi.dattilo@gpapartners.com",
+   account Contoso; al ritorno la TaskDialog si chiude; risposta MCP contiene
+   `{"signedIn": true, "username": "user@example.com",
    "tenantId": "...", "tokenLifetimeMinutes": 60}`.
 
 3. **List workspaces**: chiamare `pbi_list_workspaces`. Atteso: lista di
@@ -632,7 +632,7 @@ registration custom in caso di tenant restrittivo.
 
 | Sintomo | Possibile causa | Azione |
 |---|---|---|
-| `AADSTS50194 / AADSTS70011` | client ID non valido sul tenant GPA | Override `TenantId` con tenant GPA specifico, oppure registrare app custom |
+| `AADSTS50194 / AADSTS70011` | client ID non valido sul tenant Contoso | Override `TenantId` con tenant Contoso specifico, oppure registrare app custom |
 | `AADSTS65001` | consent richiesto admin | Chiedere a IT consent admin per gli scope PBI |
 | `Insufficient privileges` su `groups` | account senza licenza PBI Pro/Premium | Verificare assegnazione licenza |
 | Plugin crash su startup | MSAL.dll conflitto con DLL Revit | Downgrade MSAL 4.61 o 4.60; verificare logs Trace |
@@ -661,7 +661,7 @@ errori, warnings tollerati solo se preesistenti.
 
 | ID | Decisione | Default | Da rivedere quando |
 |---|---|---|---|
-| D-01 | Client ID well-known vs app registration custom GPA | Well-known | Quando si passa a deployment di team (>3 utenti) |
+| D-01 | Client ID well-known vs app registration custom Contoso | Well-known | Quando si passa a deployment di team (>3 utenti) |
 | D-02 | Single workspace per tutti i progetti vs workspace-per-progetto | Single | Se i progetti sono >20 |
 | D-03 | Push dataset vs streaming dataset | Push | Se latency <1 sec diventa requisito |
 | D-04 | XMLA endpoint per schema flessibile | No (push) | Se la rigidità schema diventa problema |
@@ -685,4 +685,4 @@ errori, warnings tollerati solo se preesistenti.
 
 | Versione | Data | Cambiamenti | Autore |
 |---|---|---|---|
-| 0.1 | 2026-05-09 | Prima stesura: Phase 0 implementata, Phase 1+ da costruire | Claude + Luigi |
+| 0.1 | 2026-05-09 | Prima stesura: Phase 0 implementata, Phase 1+ da costruire | Claude + autore upstream |

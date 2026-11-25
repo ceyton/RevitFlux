@@ -207,8 +207,6 @@ public class PushTableToPowerBiTool : ICortexTool
         var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         foreach (var candidate in new[]
         {
-            Path.Combine(userProfile, "OneDrive - GPA Ingegneria Srl"),
-            Path.Combine(userProfile, "OneDrive - GPA Partners"),
             Path.Combine(userProfile, "OneDrive")
         })
         {

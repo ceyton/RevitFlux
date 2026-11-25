@@ -42,11 +42,11 @@ Default deploya solo R25. Per release multi-target, deploya tutti e 5 (vedi memo
 
 ## Release flow (GitHub Releases)
 
-Repo `LuDattilo/RevitCortex` è pubblico. Repo asset release era separato (`revitflux-releases`), ora il main è pubblico ma il flow resta:
+Repo `<owner>/<repo>` è pubblico. Repo asset release era separato (`revitflux-releases`), ora il main è pubblico ma il flow resta:
 
 ```bash
 ./release.ps1 -Version "1.0.26"
-gh release create v1.0.26 --repo LuDattilo/revitflux-releases ./release/*.zip
+gh release create v1.0.26 --repo <owner>/<repo> ./release/*.zip
 ```
 
 (Verifica `release.ps1` per il flow esatto: in alcune versioni crea solo i pacchetti, in altre fa anche il `gh release create`.)

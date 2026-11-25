@@ -25,7 +25,7 @@ RevitCortex MCP stdio was unavailable (`Transport closed`), but the Revit plugin
 Model context:
 
 - Project: Snowdon Towers
-- File: `C:\Users\luigi.dattilo\Desktop\Snowdon Towers Sample Structural.rvt`
+- File: `C:\Users\<user>\Desktop\Snowdon Towers Sample Structural.rvt`
 - Links loaded: Architectural, Facades, HVAC, Electrical, Plumbing, Site
 - Revit warning snapshot: floor shape-editing warning and wall insert conflict only
 

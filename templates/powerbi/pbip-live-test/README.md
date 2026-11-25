@@ -71,7 +71,7 @@ migrated to an XMLA-accessible model:
 ```powershell
 cd templates\powerbi\pbip-live-test
 .\scripts\Set-PowerBiConnectionFromRevitBinding.ps1 `
-  -WorkspaceNameOrId "GPA Ingegneria Srl" `
+  -WorkspaceNameOrId "Contoso" `
   -Force
 ```
 
@@ -80,7 +80,7 @@ Or set the connection manually:
 ```powershell
 cd templates\powerbi\pbip-live-test
 .\scripts\Set-PowerBiConnection.ps1 `
-  -WorkspaceNameOrId "GPA Ingegneria Srl" `
+  -WorkspaceNameOrId "Contoso" `
   -SemanticModelName "RevitCortex Live - Snowdon Towers - v1.1" `
   -SemanticModelId "00000000-0000-0000-0000-000000000000"
 ```

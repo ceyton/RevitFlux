@@ -33,8 +33,6 @@ $inv = [System.Globalization.CultureInfo]::InvariantCulture
 
 if (-not $OutputPath) {
     $candidates = @(
-        (Join-Path $env:USERPROFILE "OneDrive - GPA Ingegneria Srl"),
-        (Join-Path $env:USERPROFILE "OneDrive - GPA Partners"),
         (Join-Path $env:USERPROFILE "OneDrive")
     )
     $base = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1

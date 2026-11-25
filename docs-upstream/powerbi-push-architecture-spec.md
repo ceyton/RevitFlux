@@ -1,7 +1,7 @@
 # RevitCortex → Power BI: Spec architetturale dei push
 
 **Versione**: 0.1 draft (2026-05-12)
-**Autore**: Sessione di analisi con utente luigi.dattilo
+**Autore**: Sessione di analisi con l'autore upstream
 **Stato**: aperto a iterazione
 
 > Questo documento fissa lo stato attuale delle due pipeline RevitCortex → Power BI, ne confronta le filosofie, e descrive l'architettura concordata per la prossima iterazione (refresh on-demand triggerato da Cortex su Premium). È pensato per essere letto, contestato e modificato — non è un piano finale.
@@ -177,7 +177,7 @@ Tra le opzioni valutate:
 ```
 1. SETUP UNA TANTUM (per ogni progetto Revit):
    a. Cortex → Export panel → cartella output = percorso locale dentro OneDrive
-      es: C:\Users\luigi\OneDrive - GPA\Documenti\RevitCortex\<Progetto>\
+      es: C:\Users\<user>\OneDrive\Documenti\RevitCortex\<Progetto>\
    b. Esporta → CSV scritti nella cartella
    c. Apri PBI Desktop → incolla dashboard-template.pq → imposta FolderPath = stesso percorso
    d. Materializza tabelle (Add as new query su ogni valore Table)
@@ -412,7 +412,7 @@ Il visual è **complementare ai dati**: usa i dati esportati (da A o B) per popo
 - **Pro**: bilanciamento
 - **Contro**: serve definire le famiglie
 
-### 5.4 Raccomandazione preliminare per GPA
+### 5.4 Raccomandazione preliminare per Contoso
 
 Senza altre info, **Filosofia A**: progetti BIM tipicamente eterogenei (schedule diverse per tipo), clienti vogliono dashboard propria, refresh per progetto è naturale. Il template universale `.pq` v3.0 rende il setup leggero (15 min per nuovo progetto). Cross-project analysis si fa eventualmente come SECONDO `.pbix` portfolio costruito sopra Dataflow.
 

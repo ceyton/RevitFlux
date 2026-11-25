@@ -12,7 +12,7 @@ cd C:\percorso\al\repo\templates\powerbi
 
 Output atteso:
 ```
-Output folder: C:\Users\<tu>\OneDrive - GPA Ingegneria Srl\RevitCortex\TestProject
+Output folder: C:\Users\<tu>\OneDrive\RevitCortex\TestProject
   walls:  60 rows
   floors: 25 rows
   doors:  40 rows
@@ -73,7 +73,7 @@ quelli del tuo modello e il drillthrough funzionerà.
 
 ## 6. Pubblica per scheduled refresh (opzionale)
 
-1. PBI Desktop → **File → Pubblica → Workspace Premium GPA**
+1. PBI Desktop → **File → Pubblica → Workspace Premium Contoso**
 2. Su PBI Service → workspace → tre puntini sul dataset → **Pianifica aggiornamento**
 3. Configura fino a 48 refresh/giorno (Premium)
 4. Per il refresh da OneDrive serve un **Personal Gateway** o connessione SharePoint
@@ -92,6 +92,6 @@ Una volta validato il flusso:
 
 Per rifare il test da zero:
 ```powershell
-Remove-Item -Path "C:\Users\<tu>\OneDrive - GPA Ingegneria Srl\RevitCortex\TestProject" -Recurse -Force
+Remove-Item -Path "C:\Users\<tu>\OneDrive\RevitCortex\TestProject" -Recurse -Force
 .\Generate-SampleData.ps1
 ```

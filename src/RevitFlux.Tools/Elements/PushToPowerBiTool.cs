@@ -55,7 +55,7 @@ public class PushToPowerBiTool : ICortexTool
             return ExportSchedules(doc, scheduleIds, outputFolder);
         }
 
-        // Default: OneDrive GPA Ingegneria Srl folder, subfolder RevitFlux/<DocName>
+        // Default: OneDrive folder, subfolder RevitFlux/<DocName>
         if (string.IsNullOrEmpty(outputFolder))
         {
             var oneDrive = FindOneDriveFolder();
@@ -678,11 +678,8 @@ public class PushToPowerBiTool : ICortexTool
     private static string FindOneDriveFolder()
     {
         var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        // Look for GPA-branded OneDrive first, then generic OneDrive
         foreach (var candidate in new[]
         {
-            Path.Combine(userProfile, "OneDrive - GPA Ingegneria Srl"),
-            Path.Combine(userProfile, "OneDrive - GPA Partners"),
             Path.Combine(userProfile, "OneDrive")
         })
         {

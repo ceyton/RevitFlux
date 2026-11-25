@@ -1,7 +1,7 @@
 # RevitCortex Bulk Test - Comandi recenti
 
 Data: 2026-05-29  
-Modello: `Snowdon Towers` (`C:\Users\luigi.dattilo\Documents\Snowdon Towers Sample Architectural_luigi.dattilo7VWCL.rvt`)  
+Modello: `Snowdon Towers` (`C:\Users\<user>\Documents\Snowdon Towers Sample Architectural.rvt`)  
 Runtime: RevitCortex plugin via socket JSON-RPC locale, porta `8080`  
 Lingua rilevata: inglese (`Comments`, `Type Name`, `Family Name`)
 

@@ -14,7 +14,7 @@
 
 let
     // ┌─ CHANGE THIS to your actual folder path ─┐
-    FolderPath = "C:\Users\luigi.dattilo\OneDrive - GPA Ingegneria Srl\RevitCortex\TestProject",
+    FolderPath = "C:\Users\<user>\OneDrive\RevitCortex\TestProject",
     // └──────────────────────────────────────────┘
 
     // 1. Read every CSV in the folder, ignore subfolders

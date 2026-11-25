@@ -464,15 +464,15 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 **Parametri chiave:**
 - `categories`: usa codici OST_* (es. `["OST_Walls","OST_Floors"]`). Ometti per esportare tutto.
 - `parameterNames`: lista dei parametri da includere come colonne. Ometti per auto-discover dai primi 100 elementi.
-- `outputFolder`: default `OneDrive - GPA Ingegneria Srl\RevitFlux\<NomeDocumento>\`. Puoi sovrascrivere con un path assoluto.
+- `outputFolder`: default `OneDrive\RevitFlux\<NomeDocumento>\`. Puoi sovrascrivere con un path assoluto.
 - `fileName`: default `elements_<timestamp>.csv`. Usa un nome fisso (es. `walls.csv`) se vuoi che PBI sovrascriva lo stesso file ad ogni refresh.
 - Viene scritto anche `last_refresh.json` nella stessa cartella (utile come sorgente di una card "Ultimo aggiornamento" in PBI).
 
 **Setup Power BI Desktop (una tantum):**
 1. Get Data → Cartella (o SharePoint Folder se usi la versione cloud OneDrive)
-2. Punta a `OneDrive - GPA Ingegneria Srl\RevitFlux\<NomeProgetto>\`
+2. Punta a `OneDrive\RevitFlux\<NomeProgetto>\`
 3. Combina i file CSV con Power Query → espandi le colonne
-4. Pubblica nel workspace Premium GPA → abilita scheduled refresh (fino a 48x/giorno con Premium)
+4. Pubblica nel workspace Premium Contoso → abilita scheduled refresh (fino a 48x/giorno con Premium)
 
 **NON fare:**
 - Non usare un `fileName` con timestamp fisso e poi impostare scheduled refresh in PBI: PBI aggiungerebbe nuove righe ad ogni refresh invece di sostituirle. Usa un nome fisso oppure usa Power Query per filtrare sul file più recente tramite `last_refresh.json`.
@@ -601,14 +601,14 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 
 **Settings:**
 - `~/.revitflux/powerbi-live.json` contiene clientId/tenantId/defaultWorkspaceId
-- Per GPA usare app registration custom, non il ClientId well-known:
-  - `ClientId = 05d231e9-d720-4c54-8ecd-93a85dbef40b`
-  - `TenantId = 53372e72-8a4d-4a86-8745-257d91a1aafc`
-- ClientId default storico = "871c010f-5e61-4fb1-83ac-98610a7e9110" (PBI Embedded Sample, well-known), ma sul tenant GPA fallisce con AADSTS65002
+- Per Contoso usare app registration custom, non il ClientId well-known:
+  - `ClientId = <your-client-id>`
+  - `TenantId = <your-tenant-id>`
+- ClientId default storico = "871c010f-5e61-4fb1-83ac-98610a7e9110" (PBI Embedded Sample, well-known), ma sul tenant Contoso fallisce con AADSTS65002
 - AllowExternalWrites = false (push PBI bloccato in read-only mode by default)
 
-**App registration Entra GPA:**
-- Supported account types: Single tenant - GPA Ingegneria Srl
+**App registration Entra Contoso:**
+- Supported account types: Single tenant - Contoso
 - Platform: Mobile and desktop applications / InstalledClient
 - Redirect URI:
   - `http://localhost`
@@ -617,7 +617,7 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
   - `Dataset.ReadWrite.All`
   - `Report.Read.All`
   - `Workspace.Read.All`
-- Admin consent deve risultare `Granted for GPA Ingegneria Srl`
+- Admin consent deve risultare `Granted for Contoso`
 - Nel Manifest `allowPublicClient` deve essere esplicitamente `true`; se e' `null`, il device-code arriva alla conferma browser ma poi il token exchange fallisce con AADSTS7000218 (`client_assertion` o `client_secret` richiesto)
 
 **Token cache:**
@@ -640,9 +640,9 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 
 **Esito test validato 2026-05-11:**
 - `pbi_check_auth(signIn=true)` ritorna in ~20 ms, Revit non si congela
-- Login riuscito con account `luigi.dattilo-co@gpapartners.com`
+- Login riuscito con account `user@example.com`
 - Token cache MSAL/DPAPI letto correttamente
-- `pbi_list_workspaces` ritorna 4 workspace: `GPA BIM`, `24HBS`, `AutomatedML`, `Test`
+- `pbi_list_workspaces` ritorna l'elenco dei workspace accessibili
 
 **Fonte:** Phase 0 del piano PBI Live, allineato con docs/powerbi-live-architecture-review.md (2026-05-09), validato end-to-end 2026-05-11
 

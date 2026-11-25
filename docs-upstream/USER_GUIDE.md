@@ -251,7 +251,7 @@ Questa sezione raccoglie i comandi per leggere, cercare, creare e modificare gli
 | `operate_element` | Esegue azioni rapide sugli elementi (es. seleziona, isola, nascondi). | "Seleziona questi elementi nella vista" |
 | `batch_rename` | Rinomina in blocco gli elementi con find/replace, prefisso o suffisso (anteprima con dryRun). | "Rinomina in anteprima i tipi sostituendo 'STD' con 'STANDARD'" |
 | `renumber_elements` | Rinumera gli elementi su un parametro con numero iniziale, incremento e ordinamento (anteprima con dryRun, richiede conferma). | "Rinumera in anteprima le porte partendo da 1 ordinate per livello" |
-| `rename_families` | Rinomina famiglie e/o tipi in blocco per categoria (anteprima con dryRun). | "Aggiungi il prefisso 'GPA_' a tutte le famiglie di porte, prima in anteprima" |
+| `rename_families` | Rinomina famiglie e/o tipi in blocco per categoria (anteprima con dryRun). | "Aggiungi il prefisso 'ABC_' a tutte le famiglie di porte, prima in anteprima" |
 | `color_elements` | Colora gli elementi di una categoria per valore di parametro (solo viste modello, non Tavole). | "Colora i muri in base al loro tipo nella pianta corrente" |
 | `set_element_phase` | Assegna la fase agli elementi (solo modelli con fasi; richiede conferma). | "Imposta la fase di creazione di questi elementi a 'Stato di progetto'" |
 | `set_element_workset` | Assegna il workset agli elementi (solo modelli workshared; richiede conferma). | "Sposta questi muri nel workset Architettura" |
@@ -381,7 +381,7 @@ Configurazione delle informazioni di progetto, unità, filtri di fase, workset e
 
 | Comando | Cosa fa | Esempio di prompt naturale |
 |---------|---------|----------------------------|
-| `set_project_info` | Imposta le informazioni di progetto (nome, numero, indirizzo, committente, autore…). | "Imposta nome progetto Nuova Sede, committente GPA, autore Luigi" |
+| `set_project_info` | Imposta le informazioni di progetto (nome, numero, indirizzo, committente, autore…). | "Imposta nome progetto Nuova Sede, committente Contoso, autore Mario Rossi" |
 | `manage_project_units` | Gestisce le unità di progetto per tipo di grandezza (es. lunghezza, area). | "Imposta le unità di lunghezza in millimetri con due decimali" |
 | `manage_phase_filters` | Gestisce i filtri di fase del progetto (creazione, stato, presentazione). | "Crea un filtro di fase che mostra solo le demolizioni" |
 | `manage_worksets` | Gestisce i workset (crea, rinomina, elimina). | "Crea un workset chiamato Strutture" |
@@ -405,7 +405,7 @@ Scenari reali che combinano più comandi in un'unica richiesta in linguaggio nat
 
 - **Setup nuovo materiale e computo**: "Crea un materiale Acciaio S355 di classe metallo, poi dammi le quantità di materiale per `OST_StructuralFraming` e creami un abaco del telaio strutturale con Tipo, Lunghezza e Volume." Qui si concatenano `create_material`, `get_material_quantities` e `create_schedule` (preceduto eventualmente da `list_schedulable_fields` per scoprire i campi giusti).
 
-- **Pulizia e consegna**: "Fai prima l'anteprima della purga degli inutilizzati, poi elimina gli import CAD, imposta le info di progetto con committente GPA e numero 2026-014, e infine esporta tutti i fogli in PDF nella cartella Consegna." Claude usa `purge_unused` con dryRun per l'anteprima, `cad_link_cleanup`, `set_project_info` e `batch_export`; le operazioni distruttive chiedono conferma in Revit prima di agire.
+- **Pulizia e consegna**: "Fai prima l'anteprima della purga degli inutilizzati, poi elimina gli import CAD, imposta le info di progetto con committente Contoso e numero 2026-014, e infine esporta tutti i fogli in PDF nella cartella Consegna." Claude usa `purge_unused` con dryRun per l'anteprima, `cad_link_cleanup`, `set_project_info` e `batch_export`; le operazioni distruttive chiedono conferma in Revit prima di agire.
 
 ### IFC — import, export, link, ricostruzione
 

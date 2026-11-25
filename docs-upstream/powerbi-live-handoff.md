@@ -21,26 +21,26 @@ Tre commit atomici sopra `main`:
 - Tutto il wizard CSV-based dal ribbon Revit ("Power BI Export")
 - Drillthrough PBI → Revit via `revitcortex://`
 - Round-trip CSV → Revit (con dryRun + commit)
-- Phase 0 PBI Live: device-code + list workspaces validati con account GPA
+- Phase 0 PBI Live: device-code + list workspaces validati con account Contoso
 
 ## Cosa manca da testare prima di Phase 1
 
 - [x] **Test Phase 0 end-to-end**: validato 2026-05-11 in Revit 2025.
       `pbi_check_auth(signIn=true)` ritorna in ~20 ms senza freeze Revit,
-      device-code completato con account `luigi.dattilo-co@gpapartners.com`,
+      device-code completato con account `user@example.com`,
       token letto da cache MSAL/DPAPI, `pbi_list_workspaces` OK.
-- [x] **Verificare consent**: il client ID well-known fallisce sul tenant GPA
-      con AADSTS65002. Risolto creando app registration custom GPA e
+- [x] **Verificare consent**: il client ID well-known fallisce sul tenant Contoso
+      con AADSTS65002. Risolto creando app registration custom Contoso e
       configurando `ClientId`/`TenantId` in `~/.revitcortex/powerbi-live.json`.
 
-## Configurazione GPA validata
+## Configurazione Contoso validata
 
 `~/.revitcortex/powerbi-live.json`:
 
 ```json
 {
-  "ClientId": "05d231e9-d720-4c54-8ecd-93a85dbef40b",
-  "TenantId": "53372e72-8a4d-4a86-8745-257d91a1aafc",
+  "ClientId": "<your-client-id>",
+  "TenantId": "<your-tenant-id>",
   "DefaultWorkspaceId": null,
   "DefaultDatasetId": null,
   "DefaultReportId": null,
@@ -51,20 +51,17 @@ Tre commit atomici sopra `main`:
 
 App registration Entra `RevitCortex Power BI`:
 
-- Single tenant GPA
+- Single tenant Contoso
 - Platform `Mobile and desktop applications`
 - Redirect URI `http://localhost`
 - Redirect URI `https://login.microsoftonline.com/common/oauth2/nativeclient`
 - Delegated Power BI permissions: `Dataset.ReadWrite.All`, `Report.Read.All`, `Workspace.Read.All`
-- Admin consent granted for GPA
+- Admin consent granted for Contoso
 - Manifest: `"allowPublicClient": true` esplicito. Se resta `null`, il browser conferma il device login ma MSAL fallisce il token exchange con AADSTS7000218.
 
 Workspace restituiti nel test:
 
-- `GPA BIM`
-- `24HBS`
-- `AutomatedML`
-- `Test`
+- (nomi rimossi)
 
 ## Roadmap residua (allineata a `docs/powerbi-live-architecture-review.md`)
 
@@ -149,7 +146,7 @@ In ordine di priorità tecnica:
 ## Setup richiesto al ritorno
 
 1. **Verificare licenza PBI** (confermata: l'utente ce l'ha)
-2. **Decidere Tenant ID GPA**: di default usiamo "organizations" ma se
+2. **Decidere Tenant ID Contoso**: di default usiamo "organizations" ma se
    il consent è bloccato serve override esplicito
 3. **Workspace dedicato "RevitCortex Live"** su PBI Service Premium
    (può anche essere "My workspace" per il primo test)
@@ -172,7 +169,7 @@ cd templates/powerbi
 
 ## Decisioni aperte (da discutere lunedì)
 
-- **App registration custom su tenant GPA?** Se l'IT collabora si guadagna
+- **App registration custom su tenant Contoso?** Se l'IT collabora si guadagna
   in branding, audit, e si può andare in produzione condivisa con i
   colleghi. Decisione: probabilmente sì in Phase 2 quando il flusso è
   validato.
