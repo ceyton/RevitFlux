@@ -36,7 +36,7 @@ dotnet test src/RevitFlux.Tests/RevitFlux.Tests.csproj -c "Debug R26"
 ```
 
 `deploy.ps1` installs for the current user only, and refuses to run while Revit or the RevitFlux server is open.
-Code execution is off by default; enable it in RevitFlux Settings.
+Code execution is off by default; enable it in RevitFlux Settings. Scripts ask for confirmation in Revit unless you also turn on "Run scripts without asking me" (off by default; use a copy of the model).
 Use `-ServerOnly` to update just the MCP server while Revit stays open.
 
 ## Status

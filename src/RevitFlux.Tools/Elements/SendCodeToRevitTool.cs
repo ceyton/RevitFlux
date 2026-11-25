@@ -71,8 +71,14 @@ public class SendCodeToRevitTool : ICortexTool, ICommandTimeoutTool
             return sandboxResult;
         }
 
-        // Gate 3: explicit user confirmation before any script execution
-        if (!session.RequestConfirmation("execute C# script", 1, critical: true))
+        // Gate 3: explicit user confirmation, unless the user turned it off in Settings.
+        // A request whose caller already gave up must not run either way.
+        if (settings.SkipScriptConfirmation)
+        {
+            if (session.IsExecutionAbandoned?.Invoke() == true)
+                return CortexResult<object>.Fail(CortexErrorCode.Cancelled, "Script not run: the caller timed out");
+        }
+        else if (!session.RequestConfirmation("execute C# script", 1, critical: true))
             return CortexResult<object>.Fail(CortexErrorCode.Cancelled, "Script execution cancelled by user");
 
         // Persist script to ~/.revitflux/scripts/

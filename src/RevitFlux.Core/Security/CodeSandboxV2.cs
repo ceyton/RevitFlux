@@ -29,6 +29,8 @@ public static class CodeSandboxV2
     // an argument — see ReflectionWithArgumentPatterns below for those cases.
     private static readonly Regex[] ProhibitedPatterns = new[]
     {
+        // A script must not change RevitFlux settings (e.g. turn its own confirmation off).
+        new Regex(@"\bRevitFlux\b", RegexOptions.Compiled),
         new Regex(@"\bProcess\s*\.\s*Start\b", RegexOptions.Compiled),
         new Regex(@"\b(File|Directory|Path)\s*\.\s*(Read|Write|Delete|Move|Copy|Create|Exists|Open|Append|GetFiles|GetDirectories)\w*", RegexOptions.Compiled),
         new Regex(@"\b(WebClient|HttpClient|WebRequest|HttpWebRequest|TcpClient|Socket)\b", RegexOptions.Compiled),

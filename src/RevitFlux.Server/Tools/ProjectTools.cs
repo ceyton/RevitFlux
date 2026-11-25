@@ -408,7 +408,7 @@ public static class ProjectTools
         return result.ToLean();
     }
 
-    [McpServerTool(Name = "send_code_to_revit"), Description("LAST RESORT: run C# in Revit, only when no dedicated tool fits (check find_tools; e.g. set_element_parameters, ai_element_filter) and the user has given explicit consent. Sandboxed; Revit asks the user to confirm. No family editing (EditFamily deadlocks). Revit 2023/2024 compile C# 5. Return only the data you need.")]
+    [McpServerTool(Name = "send_code_to_revit"), Description("LAST RESORT: run C# in Revit, only when no dedicated tool fits (check find_tools; e.g. set_element_parameters, ai_element_filter) and the user has given explicit consent. Sandboxed; Revit asks the user to confirm unless they turned that off. No family editing (EditFamily deadlocks). Revit 2023/2024 compile C# 5. Return only the data you need.")]
     public static async Task<string> SendCodeToRevit(
         RevitConnectionManager revit,
         [Description("C# body. Globals: document, uiDocument, app")] string code,

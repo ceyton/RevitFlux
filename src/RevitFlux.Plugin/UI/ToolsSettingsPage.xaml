@@ -45,6 +45,11 @@
                               Content="Allow send_code_to_revit (custom C# execution)"/>
                     <TextBlock Foreground="#8D6E63" FontSize="11" Margin="20,3,0,0" TextWrapping="Wrap"
                                Text="Last resort only. When off, the assistant cannot run custom C# and must use dedicated tools. Off by default. Saved with the Save button below."/>
+                    <CheckBox x:Name="SkipConfirmToggle" FontSize="13" Margin="20,8,0,0" Foreground="#B71C1C"
+                              IsEnabled="{Binding IsChecked, ElementName=CodeExecToggle}"
+                              Content="Run scripts without asking me"/>
+                    <TextBlock Foreground="#8D6E63" FontSize="11" Margin="40,3,0,0" TextWrapping="Wrap"
+                               Text="Scripts can change or delete anything in the open model and will start immediately. Off by default."/>
                 </StackPanel>
             </Border>
         </StackPanel>

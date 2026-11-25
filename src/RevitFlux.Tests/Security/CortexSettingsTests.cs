@@ -30,6 +30,24 @@ public class CortexSettingsTests
     }
 
     [Fact]
+    public void SkipScriptConfirmation_IsOffByDefault_AndForOldFiles()
+    {
+        Assert.False(new CortexSettings().SkipScriptConfirmation);
+        var path = Path.Combine(Path.GetTempPath(), $"rc-test-{System.Guid.NewGuid():N}.json");
+        File.WriteAllText(path, "{\"EnableCodeExecution\": true, \"DisabledTools\": [\"foo\"]}");
+        try
+        {
+            Assert.False(CortexSettings.Load(path).SkipScriptConfirmation);
+            CortexSettings.SetSkipScriptConfirmation(true, path);
+            var loaded = CortexSettings.Load(path);
+            Assert.True(loaded.SkipScriptConfirmation);
+            Assert.True(loaded.EnableCodeExecution);
+            Assert.Contains("foo", File.ReadAllText(path));
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Fact]
     public void Load_CorruptJson_ReturnsDefaults()
     {
         var tempPath = Path.Combine(Path.GetTempPath(), $"rc-test-{System.Guid.NewGuid():N}.json");

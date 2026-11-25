@@ -19,6 +19,14 @@ public class CortexSettings
     [JsonProperty("EnableCodeExecution")]
     public bool EnableCodeExecution { get; set; } = false;
 
+    /// <summary>
+    /// When true, send_code_to_revit runs without the in-Revit confirmation. Off by default and
+    /// only meaningful while <see cref="EnableCodeExecution"/> is on. Sandbox, read-only mode
+    /// and audit logging still apply.
+    /// </summary>
+    [JsonProperty("SkipScriptConfirmation")]
+    public bool SkipScriptConfirmation { get; set; } = false;
+
     /// <summary>TCP port for plugin-to-server communication.</summary>
     [JsonProperty("Port")]
     public int Port { get; set; } = 8090;
@@ -66,7 +74,14 @@ public class CortexSettings
     /// class does not model. Use this instead of <see cref="Save"/> from the settings UI,
     /// where a full re-serialize would silently drop keys owned by other pages.
     /// </summary>
-    public static void SetEnableCodeExecution(bool enabled, string? path = null)
+    public static void SetEnableCodeExecution(bool enabled, string? path = null) =>
+        SetFlag("EnableCodeExecution", enabled, path);
+
+    /// <summary>Merge-writes ONLY the SkipScriptConfirmation flag.</summary>
+    public static void SetSkipScriptConfirmation(bool skip, string? path = null) =>
+        SetFlag("SkipScriptConfirmation", skip, path);
+
+    private static void SetFlag(string key, bool value, string? path)
     {
         var file = path ?? DefaultPath;
         JObject root;
@@ -79,7 +94,7 @@ public class CortexSettings
             root = new JObject();
         }
 
-        root["EnableCodeExecution"] = enabled;
+        root[key] = value;
 
         var dir = Path.GetDirectoryName(file);
         if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))

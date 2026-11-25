@@ -36,7 +36,9 @@ public partial class ToolsSettingsPage : Page
         LoadTools();
 
         // Reflect the persisted master switch for custom C# execution.
-        CodeExecToggle.IsChecked = CoreSettings.Load().EnableCodeExecution;
+        var current = CoreSettings.Load();
+        CodeExecToggle.IsChecked = current.EnableCodeExecution;
+        SkipConfirmToggle.IsChecked = current.SkipScriptConfirmation;
     }
 
     private void LoadTools()
@@ -182,6 +184,22 @@ public partial class ToolsSettingsPage : Page
     {
         try
         {
+            bool codeExec = CodeExecToggle.IsChecked == true;
+            // Turning scripts off also clears this, so it cannot come back unnoticed later.
+            bool skipConfirm = codeExec && SkipConfirmToggle.IsChecked == true;
+            if (skipConfirm && !CoreSettings.Load().SkipScriptConfirmation
+                && MessageBox.Show(
+                    "Scripts written by the AI will run immediately, without asking you first.\n\n" +
+                    "They can change or delete anything in the open model. Work on a saved or detached copy.\n\n" +
+                    "Turn confirmation off?",
+                    "Run scripts without asking", MessageBoxButton.YesNo, MessageBoxImage.Warning,
+                    MessageBoxResult.No) != MessageBoxResult.Yes)
+            {
+                SkipConfirmToggle.IsChecked = false;
+                return;
+            }
+            SkipConfirmToggle.IsChecked = skipConfirm;
+
             var disabledTools = _allGroups
                 .SelectMany(g => g.Tools)
                 .Where(t => !t.IsEnabled)
@@ -208,12 +226,13 @@ public partial class ToolsSettingsPage : Page
 
             // Persist the master switch for send_code_to_revit (merge-write preserves
             // DisabledTools just written above and any other keys).
-            bool codeExec = CodeExecToggle.IsChecked == true;
+            CoreSettings.SetSkipScriptConfirmation(skipConfirm);
             CoreSettings.SetEnableCodeExecution(codeExec);
 
             MessageBox.Show(
                 $"Saved. {disabledTools.Length} tools disabled. " +
-                $"send_code_to_revit: {(codeExec ? "ENABLED (last resort)" : "disabled")}.",
+                $"send_code_to_revit: {(codeExec ? "ENABLED (last resort)" : "disabled")}." +
+                (skipConfirm ? " Scripts run WITHOUT confirmation." : ""),
                 "Tools", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)

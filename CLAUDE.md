@@ -14,5 +14,5 @@ MCP server + Revit add-in. Based on RevitCortex (MIT): keep LICENSE and NOTICE.m
 - Server wrappers return `result.ToLean()`, never `ToString()`.
 - Destructive tools: `dryRun` option plus `session.RequestConfirmation`.
 - Never return a truncated list without saying so; counters must stay true.
-- `send_code_to_revit` stays off by default, sandboxed and confirmed.
+- `send_code_to_revit` stays off by default, sandboxed, and confirmed unless the user opted out (`SkipScriptConfirmation`).
 - All text in English.
