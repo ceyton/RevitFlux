@@ -168,7 +168,7 @@ public static class CreationTools
         return result.ToLean();
     }
 
-    [McpServerTool(Name = "export_room_data"), Description("Export room data including area, perimeter, level, and bounding elements.")]
+    [McpServerTool(Name = "export_room_data"), Description("Export room data: area, volume, level, perimeter. totalCount and truncated tell whether the list is complete.")]
     public static async Task<string> ExportRoomData(
         RevitConnectionManager revit,
         [Description("Maximum number of rooms to return. Default: 20")] int? maxResults = 20,

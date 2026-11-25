@@ -29,17 +29,19 @@ public class GetSelectedElementsTool : ICortexTool
             return CortexResult<object>.Fail(CortexErrorCode.InvalidInput,
                 "No active document in session");
 
-        var limit = input["limit"]?.Value<int>() ?? 500;
+        var limit = input["limit"]?.Value<int>() ?? 0; // 0 = all: a selection is what the user asked about
 
         try
         {
             var uiDoc = new UIDocument(doc);
             var selectedIds = uiDoc.Selection.GetElementIds();
 
-            IEnumerable<Element> selectedElements = selectedIds
+            var allSelected = selectedIds
                 .Select(id => doc.GetElement(id))
-                .Where(e => e != null);
+                .Where(e => e != null)
+                .ToList();
 
+            IEnumerable<Element> selectedElements = allSelected;
             if (limit > 0)
                 selectedElements = selectedElements.Take(limit);
 
@@ -59,8 +61,10 @@ public class GetSelectedElementsTool : ICortexTool
             {
                 message          = elements.Count == 0
                                        ? "No elements are currently selected"
-                                       : $"Found {elements.Count} selected element(s)",
-                selectedCount    = elements.Count,
+                                       : $"Found {allSelected.Count} selected element(s), returning {elements.Count}",
+                selectedCount    = allSelected.Count,
+                returnedCount    = elements.Count,
+                truncated        = elements.Count < allSelected.Count,
                 elements
             });
         }

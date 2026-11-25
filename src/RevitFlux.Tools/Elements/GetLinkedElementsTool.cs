@@ -35,6 +35,7 @@ public class GetLinkedElementsTool : ICortexTool
         var categories     = input["categories"]?.ToObject<List<string>>() ?? new List<string>();
         var parameterNames = input["parameterNames"]?.ToObject<List<string>>() ?? new List<string>();
         var maxElements    = input["maxElements"]?.Value<int>() ?? 5000;
+        if (maxElements < 0) maxElements = 0;
 
         try
         {
@@ -65,14 +66,21 @@ public class GetLinkedElementsTool : ICortexTool
             }
 
             var linksData = new List<object>();
+            var unavailableLinks = new List<string>();
 
             foreach (var linkInstance in linkInstances)
             {
                 var linkDoc = linkInstance.GetLinkDocument();
-                if (linkDoc == null) continue;  // link is unloaded or unavailable
+                if (linkDoc == null)
+                {
+                    unavailableLinks.Add(linkInstance.Name); // unloaded or not found
+                    continue;
+                }
 
                 // Collect elements from the linked document
                 List<Element> elements;
+                int totalCount;
+                var unresolvedCategories = new List<string>();
 
                 if (categories.Count > 0)
                 {
@@ -82,7 +90,10 @@ public class GetLinkedElementsTool : ICortexTool
                     {
                         var catId = CategoryResolver.ResolveToId(linkDoc, catCode);
                         if (catId == null || catId == ElementId.InvalidElementId)
-                            continue;   // skip unknown category codes
+                        {
+                            unresolvedCategories.Add(catCode);
+                            continue;
+                        }
 
                         var catElements = new FilteredElementCollector(linkDoc)
                             .OfCategoryId(catId)
@@ -97,11 +108,13 @@ public class GetLinkedElementsTool : ICortexTool
                         .GroupBy(e => e.Id)
                         .Select(g => g.First())
                         .ToList();
+                    totalCount = elements.Count;
                 }
                 else
                 {
-                    elements = new FilteredElementCollector(linkDoc)
-                        .WhereElementIsNotElementType()
+                    var collector = new FilteredElementCollector(linkDoc).WhereElementIsNotElementType();
+                    totalCount = collector.GetElementCount();
+                    elements = collector
                         .Take(maxElements)
                         .ToList();
                 }
@@ -121,7 +134,10 @@ public class GetLinkedElementsTool : ICortexTool
                     linkId        = (long)linkInstance.Id.IntegerValue,
 #endif
                     documentTitle = linkDoc.Title,
+                    totalCount,
                     elementCount  = elementsData.Count,
+                    truncated     = elementsData.Count < totalCount,
+                    unresolvedCategories,
                     elements      = elementsData
                 });
             }
@@ -130,6 +146,7 @@ public class GetLinkedElementsTool : ICortexTool
             {
                 message   = $"Found {linksData.Count} linked model(s)",
                 linkCount = linksData.Count,
+                unavailableLinks,
                 links     = linksData
             });
         }

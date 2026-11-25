@@ -54,7 +54,7 @@ public class ExportRoomDataTool : ICortexTool
                     catch { return false; }
                 }).ToList();
 
-            var result = rooms.Take(maxResults).Select(r =>
+            var result = rooms.Take(Math.Max(0, maxResults)).Select(r =>
             {
                 var area = r.get_Parameter(BuiltInParameter.ROOM_AREA)?.AsDouble() ?? 0;
                 var volume = r.get_Parameter(BuiltInParameter.ROOM_VOLUME)?.AsDouble() ?? 0;
@@ -73,7 +73,13 @@ public class ExportRoomDataTool : ICortexTool
                 };
             }).ToList();
 
-            return CortexResult<object>.Ok(new { roomCount = result.Count, rooms = result });
+            return CortexResult<object>.Ok(new
+            {
+                totalCount = rooms.Count,
+                roomCount = result.Count,
+                truncated = result.Count < rooms.Count,
+                rooms = result
+            });
         }
         catch (Exception ex)
         {

@@ -325,7 +325,7 @@ public static class ElementTools
         [Description("Name of the linked file (optional; omit to search all links)")] string? linkName = null,
         [Description("Categories to include (OST_* codes or display names)")] string[]? categories = null,
         [Description("Parameter names to extract; additive — without this only basic fields are returned")] string[]? parameterNames = null,
-        [Description("Max elements returned. Default: 5000")] int? maxElements = null,
+        [Description("Max elements per link. Default: 5000")] int? maxElements = null,
         CancellationToken ct = default)
     {
         var p = new JObject();
