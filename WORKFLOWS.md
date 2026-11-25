@@ -1,4 +1,4 @@
-# RevitCortex -- Flussi Operativi Collaudati
+# RevitFlux -- Flussi Operativi Collaudati
 
 Raccolta di sequenze multi-step verificate, organizzate per obiettivo BIM.
 Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testato sul campo.
@@ -9,7 +9,7 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 
 **Sequenza:** `get_project_info` completo -> rilevamento lingua con `get_element_parameters` su 1 elemento -> smoke read-only mirati -> test write piccoli con prefisso `RC_BULK_*` -> build seriali `Debug R25` e `Debug R24` -> report `.md`
 **Parametri chiave:**
-- Per coprire parametri appena aggiunti ma non ancora visibili nella metadata MCP, chiamare il bridge locale JSON-RPC sulla porta letta da `~/.revitcortex/settings.json`: `{"jsonrpc":"2.0","method":"tool_name","params":{...},"id":"bulk-N"}`.
+- Per coprire parametri appena aggiunti ma non ancora visibili nella metadata MCP, chiamare il bridge locale JSON-RPC sulla porta letta da `~/.revitflux/settings.json`: `{"jsonrpc":"2.0","method":"tool_name","params":{...},"id":"bulk-N"}`.
 - Usare payload minimi (`maxElements`, `maxWarnings`, `compact`) e salvare solo riepiloghi: status, tempi, conteggi, id creati, errori strutturati.
 - Evitare tool notoriamente pesanti nello stesso batch degli altri test. Se `lines_per_view_count` va in timeout, attendere che Revit liberi l'ExternalEvent prima di proseguire.
 - Eseguire `dotnet build -c "Debug R25"` e `dotnet build -c "Debug R24"` in sequenza, non in parallelo: le configurazioni condividono `obj/project.assets.json` e possono generare falsi `NETSDK1005`.
@@ -35,7 +35,7 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 
 ## Audit Uso Improprio send_code_to_revit
 
-**Sequenza:** verificare `~/.revitcortex/settings.json` (`EnableCodeExecution`) -> analizzare `~/.revitcortex/audit.jsonl` raggruppando per `tool` -> leggere le ultime entry `send_code_to_revit` con `code_snippet`/`error_message` -> confrontare ogni pattern con `tool-schemas.txt` e i tool dedicati -> controllare le descrizioni MCP esposte da `src/RevitCortex.Server` e dal wrapper legacy `server/src/tools`.
+**Sequenza:** verificare `~/.revitflux/settings.json` (`EnableCodeExecution`) -> analizzare `~/.revitflux/audit.jsonl` raggruppando per `tool` -> leggere le ultime entry `send_code_to_revit` con `code_snippet`/`error_message` -> confrontare ogni pattern con `tool-schemas.txt` e i tool dedicati -> controllare le descrizioni MCP esposte da `src/RevitFlux.Server` e dal wrapper legacy `server/src/tools`.
 **Parametri chiave:**
 - `EnableCodeExecution: true` rende lo script tool realmente disponibile; con `false` ogni chiamata deve fermarsi e usare tool nativi.
 - Le entry audit v2 includono `code_snippet`, `code_hash`, `duration_ms`, `error_message`: bastano per classificare query, write, test sandbox e casi coperti da tool nativi.
@@ -43,7 +43,7 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 - `send_code_to_revit` deve usare una conferma critica singola: niente `Auto`, niente `Yes to All`.
 **NON fare:** Non giudicare dal solo prompt del modello. Verificare prima audit reale + schema MCP effettivamente installato. Non lasciare descrizioni legacy tipo "Execute custom C# code..." senza "LAST RESORT ONLY".
 
-**Fonte:** audit locale RevitCortex del 2026-06-30 su uso eccessivo di `send_code_to_revit`
+**Fonte:** audit locale RevitFlux del 2026-06-30 su uso eccessivo di `send_code_to_revit`
 
 ---
 
@@ -261,7 +261,7 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 - Mostra versioni IFC supportate e se il plug-in revit-ifc e installato
 **NON fare:** Non tentare operazioni IFC senza prima verificare le capacita del sistema.
 
-**Fonte:** docs/RevitCortex_IFC_Guide.md
+**Fonte:** docs/RevitFlux_IFC_Guide.md
 
 ---
 
@@ -274,7 +274,7 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 - Usare `recreateLink: false` per riutilizzare un .RVT esistente
 **NON fare:** Non tentare il link senza prima validare il file. Il percorso deve essere assoluto e il file deve esistere su disco.
 
-**Fonte:** docs/RevitCortex_IFC_Guide.md
+**Fonte:** docs/RevitFlux_IFC_Guide.md
 
 ---
 
@@ -295,7 +295,7 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 - `ifc_rebuild_family_instances`: se non trova muro host entro 600mm, posiziona senza host
 **NON fare:** Non saltare il dryRun al passo 4. Non saltare il passo 6 (verifica qualita). Dopo il passo 7, creare un abaco filtrato per Commenti = 'IFC_UNRECONSTRUCTABLE' per la lista completa.
 
-**Fonte:** docs/RevitCortex_IFC_Guide.md (Workflow IFC Completo)
+**Fonte:** docs/RevitFlux_IFC_Guide.md (Workflow IFC Completo)
 
 ---
 
@@ -307,7 +307,7 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 - Override possibili tramite parametri aggiuntivi
 **NON fare:** Non esportare con configurazione senza prima verificare quali sono disponibili.
 
-**Fonte:** docs/RevitCortex_IFC_Guide.md
+**Fonte:** docs/RevitFlux_IFC_Guide.md
 
 ---
 
@@ -321,7 +321,7 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 - `filterViewId`: esporta solo elementi visibili in una vista specifica
 **NON fare:** Non usare senza specificare almeno `fileVersion` -- il default potrebbe non essere quello desiderato.
 
-**Fonte:** docs/RevitCortex_IFC_Guide.md
+**Fonte:** docs/RevitFlux_IFC_Guide.md
 
 ---
 
@@ -443,11 +443,11 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 
 ## Audit SDK Revit Locali
 
-**Sequenza:** elencare `C:\Revit * SDK` -> controllare `Samples`, `RevitAPI.chm`, `Revit Platform API Changes and Additions.docx` -> confrontare i sample tra versioni -> mappare solo gli spunti utili su backlog RevitCortex
+**Sequenza:** elencare `C:\Revit * SDK` -> controllare `Samples`, `RevitAPI.chm`, `Revit Platform API Changes and Additions.docx` -> confrontare i sample tra versioni -> mappare solo gli spunti utili su backlog RevitFlux
 **Parametri chiave:**
 - Le SDK servono come riferimento ufficiale e fonte di pattern API; il build del progetto usa i pacchetti `Nice3point.Revit.Api.*`, non gli assembly della SDK
 - Dare priorita ai sample nuovi tra versioni, per esempio R26: `CoordinationModel`, `ElectricalConductors`, `OperatingScheduleImport`; R27: `AddinsIsolation`, `HostedWall`, `ManageLinks`
-- Usare i sample Autodesk come riferimento tecnico, non copiare codice direttamente nei tool RevitCortex
+- Usare i sample Autodesk come riferimento tecnico, non copiare codice direttamente nei tool RevitFlux
 **NON fare:** Non cambiare i riferimenti NuGet verso DLL locali della SDK senza una ragione precisa. Non aggiungere feature R27-only senza guardie `REVIT2027_OR_GREATER` e build cross-target R24/R25.
 
 **Fonte:** Sessione audit SDK locali 2026-05-02
@@ -464,13 +464,13 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 **Parametri chiave:**
 - `categories`: usa codici OST_* (es. `["OST_Walls","OST_Floors"]`). Ometti per esportare tutto.
 - `parameterNames`: lista dei parametri da includere come colonne. Ometti per auto-discover dai primi 100 elementi.
-- `outputFolder`: default `OneDrive - GPA Ingegneria Srl\RevitCortex\<NomeDocumento>\`. Puoi sovrascrivere con un path assoluto.
+- `outputFolder`: default `OneDrive - GPA Ingegneria Srl\RevitFlux\<NomeDocumento>\`. Puoi sovrascrivere con un path assoluto.
 - `fileName`: default `elements_<timestamp>.csv`. Usa un nome fisso (es. `walls.csv`) se vuoi che PBI sovrascriva lo stesso file ad ogni refresh.
 - Viene scritto anche `last_refresh.json` nella stessa cartella (utile come sorgente di una card "Ultimo aggiornamento" in PBI).
 
 **Setup Power BI Desktop (una tantum):**
 1. Get Data → Cartella (o SharePoint Folder se usi la versione cloud OneDrive)
-2. Punta a `OneDrive - GPA Ingegneria Srl\RevitCortex\<NomeProgetto>\`
+2. Punta a `OneDrive - GPA Ingegneria Srl\RevitFlux\<NomeProgetto>\`
 3. Combina i file CSV con Power Query → espandi le colonne
 4. Pubblica nel workspace Premium GPA → abilita scheduled refresh (fino a 48x/giorno con Premium)
 
@@ -485,29 +485,29 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 ## Wizard UI Power BI + Bidirezionalita Drillthrough (B2 + Protocol Handler)
 
 **Sequenza:**
-1. Ribbon RevitCortex -> bottone "Power BI Export"
+1. Ribbon RevitFlux -> bottone "Power BI Export"
 2. Wizard step 1: scegli categorie con count (filtro testuale, profili salvabili)
 3. Wizard step 2: scegli parametri con copertura % (Istanza/Tipo, hide-empty, search)
 4. Wizard step 3: imposta cartella output OneDrive, nome file, sovrascrittura, auto-export al salvataggio, registrazione protocol handler -> "Esporta"
-5. Power BI Desktop -> Get Data -> Cartella -> punta a OneDrive\RevitCortex\<Modello>\
-6. In PBI: drillthrough su una matrice elemento -> URL `revitcortex://select?ids=ID1,ID2,...` -> Revit attiva e seleziona
+5. Power BI Desktop -> Get Data -> Cartella -> punta a OneDrive\RevitFlux\<Modello>\
+6. In PBI: drillthrough su una matrice elemento -> URL `revitflux://select?ids=ID1,ID2,...` -> Revit attiva e seleziona
 
 **Parametri chiave:**
-- I profili salvati sono in `~/.revitcortex/profiles/<Nome>.json` (uno per cliente/progetto)
+- I profili salvati sono in `~/.revitflux/profiles/<Nome>.json` (uno per cliente/progetto)
 - "Sovrascrivi file" = ON e indispensabile per scheduled refresh PBI con un singolo dataset
 - "Auto-export al salvataggio" si applica solo durante la sessione Revit corrente (no persistence cross-restart)
-- Il protocol handler viene registrato in HKCU (no admin); `~/.revitcortex/protocol/protocol.log` contiene il log delle invocazioni
+- Il protocol handler viene registrato in HKCU (no admin); `~/.revitflux/protocol/protocol.log` contiene il log delle invocazioni
 - Performance: la discovery dei parametri sample 200 elementi per categoria, fa coverage % e raggruppa per gruppo Revit
 
 **Setup PBI per drillthrough:**
-1. Crea una colonna "Drillthrough URL" nel modello PBI: `"revitcortex://select?ids=" & [ElementId]`
+1. Crea una colonna "Drillthrough URL" nel modello PBI: `"revitflux://select?ids=" & [ElementId]`
 2. Inserisci un visual "Action" o un bottone con campo URL = quella misura
-3. Per multi-selezione: `"revitcortex://select?ids=" & CONCATENATEX(SELECTEDVALUES(...), ",")`
+3. Per multi-selezione: `"revitflux://select?ids=" & CONCATENATEX(SELECTEDVALUES(...), ",")`
 
 **NON fare:**
 - Non usare `parameterNames` con nomi inventati: la wizard scopre i nomi reali via campionamento, fidati di quel risultato
 - Non disabilitare la coverage % filter su modelli grandi (>50 categorie + 1000 parametri possibili) — il rumore in lista diventa eccessivo
-- Non usare protocol handler con porte diverse da quelle della sessione attiva: il registrar usa `RevitCortexApp.Instance.Port` corrente al momento della registrazione
+- Non usare protocol handler con porte diverse da quelle della sessione attiva: il registrar usa `RevitFluxApp.Instance.Port` corrente al momento della registrazione
 
 **Fonte:** Implementazione sessione 2026-05-09 (B2 completo: WPF wizard + ProtocolHandlerRegistrar + SelectFromPowerBiTool)
 
@@ -516,11 +516,11 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 ## Wizard Power BI v2 - Tab categorie + Mapping editor + Round-trip
 
 **Sequenza completa:**
-1. Ribbon RevitCortex -> "Power BI Export"
+1. Ribbon RevitFlux -> "Power BI Export"
 2. Step 1 (Sorgente): tab Model/Annotation/Analytical/Altre, scope Tutto/Vista/Selezione, oppure "Schedule esistenti del modello"
 3. Step 2 (Parametri): dual-pane Available/Selected con frecce, color legend, search globale
 4. Step 3 (Output): cartella + nome file + opzioni; **bottone "Mappa colonne..."** per definire alias/formula; **bottone "Applica da CSV..."** per round-trip Revit<-CSV
-5. Esporta = `push_to_powerbi` invocato in-process via `RevitCortexApp.Instance.Router.Route(...)` (no TCP, no Cortex Switch necessario)
+5. Esporta = `push_to_powerbi` invocato in-process via `RevitFluxApp.Instance.Router.Route(...)` (no TCP, no Cortex Switch necessario)
 
 **Mapping editor (Commit 2):**
 - Riga = una colonna CSV
@@ -581,8 +581,8 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 
 **Templates di test (non richiede Revit):**
 - `templates/powerbi/Generate-SampleData.ps1` genera 125 righe di test in OneDrive
-- `templates/powerbi/RevitCortex-PowerQuery.pq` script M gia' configurato
-- `templates/powerbi/RevitCortex-DAX-Measures.txt` misure DAX base
+- `templates/powerbi/RevitFlux-PowerQuery.pq` script M gia' configurato
+- `templates/powerbi/RevitFlux-DAX-Measures.txt` misure DAX base
 - `templates/powerbi/Build-Report-Steps.md` procedura passo-passo
 
 **Fonte:** Implementato 2026-05-09 (commit 4: Claude-generated tables to PBI)
@@ -596,11 +596,11 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 2. Se non loggato: `pbi_check_auth(signIn=true)` -> avvia MSAL device-code in background e ritorna subito (`Starting` o `AwaitingUser`), senza bloccare il main thread Revit
 3. Richiamare `pbi_check_auth(signIn=false)` dopo pochi secondi per leggere `userCode` + `verificationUrl` se il primo risultato era `Starting`
 4. Utente apre browser su `https://login.microsoft.com/device`, incolla codice, completa login
-5. Token cache salvato cifrato in %LOCALAPPDATA%\.revitcortex\msal_cache.bin (DPAPI)
+5. Token cache salvato cifrato in %LOCALAPPDATA%\.revitflux\msal_cache.bin (DPAPI)
 6. `pbi_list_workspaces` -> elenco gruppi PBI accessibili
 
 **Settings:**
-- `~/.revitcortex/powerbi-live.json` contiene clientId/tenantId/defaultWorkspaceId
+- `~/.revitflux/powerbi-live.json` contiene clientId/tenantId/defaultWorkspaceId
 - Per GPA usare app registration custom, non il ClientId well-known:
   - `ClientId = 05d231e9-d720-4c54-8ecd-93a85dbef40b`
   - `TenantId = 53372e72-8a4d-4a86-8745-257d91a1aafc`
@@ -653,7 +653,7 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 **Primo publish (workspaceId esplicito, dataset auto-creato):**
 1. `pbi_check_auth(signIn=false)` → verifica token valido
 2. `pbi_list_workspaces()` → trova workspaceId target (es. `Test`)
-3. `pbi_publish_elements(workspaceId="...", mode="replace", categoryFilter=["OST_Walls","OST_Doors"], maxElements=2000)` → snapshot filtrato, dataset auto-creato se non esiste, binding salvato in `~/.revitcortex/powerbi-live.json`
+3. `pbi_publish_elements(workspaceId="...", mode="replace", categoryFilter=["OST_Walls","OST_Doors"], maxElements=2000)` → snapshot filtrato, dataset auto-creato se non esiste, binding salvato in `~/.revitflux/powerbi-live.json`
 4. Risposta: `{success:true, datasetId:"...", rowCount:N, batchCount:N}`
 
 **Publish successivi (binding auto-risolto, no parametri necessari):**
@@ -673,7 +673,7 @@ Ogni flusso e stato ricavato dalla documentazione operativa del progetto e testa
 
 **ProjectBindings — chiave documento:**
 - Priorità: cloud GUID > `ProjectInformation.UniqueId` > SHA256(path normalizzato)
-- Salvato in `~/.revitcortex/powerbi-live.json` sotto `ProjectBindings[docKey]`
+- Salvato in `~/.revitflux/powerbi-live.json` sotto `ProjectBindings[docKey]`
 - Aggiornato automaticamente ad ogni publish riuscito (elements o schedules)
 - Schema binding: `{WorkspaceId, DatasetId, DatasetName, ProjectName, DocumentGuid, LastPathHash, SchemaVersion, UpdatedAtUtc}`
 
@@ -764,13 +764,13 @@ Query the bound Power BI dataset and select matching Revit elements by returned 
 **Quando usare:** Selezionare elementi Revit direttamente da un report Power BI Desktop senza passare da Claude.
 
 **Prerequisiti:**
-- Plugin RevitCortex installato e Cortex Switch attivo (porta 27016 si apre automaticamente)
-- Power BI Desktop (non Service) con il visual `revitcortexselectionvisual1A2B3C4D.1.0.0.4.pbiviz` importato
+- Plugin RevitFlux installato e Cortex Switch attivo (porta 27016 si apre automaticamente)
+- Power BI Desktop (non Service) con il visual `revitfluxselectionvisual1A2B3C4D.1.0.0.4.pbiviz` importato
 
 **Installazione del visual:**
 1. Aprire Power BI Desktop
 2. Nel pannello Visualizzazioni → "…" → Importa un visual da un file
-3. Selezionare `powerbi-visual/dist/revitcortexselectionvisual1A2B3C4D.1.0.0.4.pbiviz`
+3. Selezionare `powerbi-visual/dist/revitfluxselectionvisual1A2B3C4D.1.0.0.4.pbiviz`
 4. Trascinare il visual sulla pagina del report
 5. Nel pannello Campi, trascinare `Elements[ElementId]` nel ruolo **Element ID**
 
@@ -781,7 +781,7 @@ Query the bound Power BI dataset and select matching Revit elements by returned 
 - **Crea vista 3D da selezione / Create 3D view from selection** — outline; genera una nuova vista 3D isometrica con `SectionBox` attorno agli elementi selezionati, isolando quegli elementi. La vista viene aggiunta al Project Browser; **la vista corrente non cambia**.
 - **Reset override** — outline ambra; pulisce tutti gli `OverrideGraphicSettings` sulla vista attiva. Utile per ripartire dopo aver usato "Colora in Revit".
 - Feedback "✓ Inviati/Colorati/Reset/Vista creata" per 3 secondi dopo ogni azione.
-- Indicatore connessione (status pill): verde con sfondo verde chiaro = "Connesso a Revit / Connected to Revit"; grigio = "RevitCortex non attivo / RevitCortex not running".
+- Indicatore connessione (status pill): verde con sfondo verde chiaro = "Connesso a Revit / Connected to Revit"; grigio = "RevitFlux non attivo / RevitFlux not running".
 - **Niente confirmation dialog**: i pulsanti agiscono direttamente. Per annullare, usa Ctrl+Z in Revit oppure "Reset override".
 
 **Esempio misura DAX per la colonna Color:**
@@ -796,7 +796,7 @@ ColorByCategory =
     )
 ```
 
-**Branding:** UI in linea con la palette del plugin RevitCortex (teal `#00838F` per titolo e pulsante primario, palette importata da `IconFactory.cs`).
+**Branding:** UI in linea con la palette del plugin RevitFlux (teal `#00838F` per titolo e pulsante primario, palette importata da `IconFactory.cs`).
 
 **Default field summarization:** il `data role` ha `kind: "Grouping"` (non `GroupingOrMeasure`) → la colonna viene trattata come dimensione, non aggregata. Niente più "Count of ElementId" né "Don't summarize" manuale.
 
@@ -894,7 +894,7 @@ ColorByCategory =
 - Layout `fixed_number`, `maximum_spacing`, `minimum_clear_spacing`: `arrayLengthMm` deve essere positivo e coerente con la lunghezza utile dell'host; ometterlo porta a `arrayLength isn't acceptable`.
 **NON fare:** Non affidarsi solo a `RebarHostData.IsValidHost`: valida l'idoneità dell'host, non che le curve candidate siano dentro il solido. Non usare lo stesso `normal` per host con orientamenti diversi. Non mischiare colonne e travi in una routine batch basata su bounding box globali.
 
-**Fonte:** indagine `docs/rebar-outside-host-analysis-2026-05-30.md`, audit RevitCortex e API Revit Structure.
+**Fonte:** indagine `docs/rebar-outside-host-analysis-2026-05-30.md`, audit RevitFlux e API Revit Structure.
 
 ---
 

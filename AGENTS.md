@@ -1,10 +1,10 @@
-# RevitCortex -- AI Assistant Guide
+# RevitFlux -- AI Assistant Guide
 
 Flussi operativi collaudati: vedere WORKFLOWS.md
 
 ## Project Overview
 
-RevitCortex is a next-generation MCP (Model Context Protocol) server for Autodesk Revit. It improves on the original mcp-servers-for-revit with typed errors, session state, and dynamic tool discovery. Tools are rewritten from scratch -- not copied from the fork reference.
+RevitFlux is a next-generation MCP (Model Context Protocol) server for Autodesk Revit. It improves on the original mcp-servers-for-revit with typed errors, session state, and dynamic tool discovery. Tools are rewritten from scratch -- not copied from the fork reference.
 
 ## Supported Revit Versions
 
@@ -35,28 +35,28 @@ R2023 and R2024 target **net48**. Code that compiles on net8+ may fail on net48.
 ## Project Structure
 
 ```
-RevitCortex/
-  RevitCortex.sln
+RevitFlux/
+  RevitFlux.sln
   nuget.config
   src/
-    RevitCortex.Core/         Core types (no Revit dependency)
+    RevitFlux.Core/         Core types (no Revit dependency)
       Discovery/                DocumentCapabilities, IDocumentAnalyzer
       Results/                  CortexResult<T>, CortexError, CortexErrorCode
       Session/                  CortexSession, ISessionStore, SessionStore
       Tools/                    ICortexTool interface
-    RevitCortex.Plugin/       Revit add-in (ExternalApplication)
+    RevitFlux.Plugin/       Revit add-in (ExternalApplication)
       Communication/            SocketService, JsonRpcModels
       Discovery/                DocumentAnalyzer, LocaleDetector
       CortexRouter.cs           Request dispatch
-      RevitCortexApp.cs         Entry point
-    RevitCortex.Tools/        Tool implementations
+      RevitFluxApp.cs         Entry point
+    RevitFlux.Tools/        Tool implementations
       Meta/                     SayHelloTool
-    RevitCortex.Tests/        Unit tests (xUnit)
+    RevitFlux.Tests/        Unit tests (xUnit)
       Discovery/                DocumentCapabilitiesTests
       Results/                  CortexResultTests
       Router/                   CortexRouterTests, FakeTool, FakeAnalyzer
       Session/                  SessionStoreTests
-  src/RevitCortex.Server/     C# MCP server (stdio transport)
+  src/RevitFlux.Server/     C# MCP server (stdio transport)
     Program.cs                  Entry point (MCP hosting)
     Connection/RevitBridge.cs   TCP bridge to Plugin
     Tools/                      157 tool definitions (9 files)
@@ -72,7 +72,7 @@ MCP Server (C#) -> SocketService -> CortexRouter -> ICortexTool
                                     DocumentCapabilities
 ```
 
-- **MCP Server (C#)** -- ModelContextProtocol SDK, stdio transport to Codex. Located in `src/RevitCortex.Server/`.
+- **MCP Server (C#)** -- ModelContextProtocol SDK, stdio transport to Codex. Located in `src/RevitFlux.Server/`.
 - **SocketService (C#)** -- TCP listener, JSON-RPC framing between C# MCP server and C# plugin.
 - **CortexRouter (C#)** -- Deserializes the JSON-RPC request, finds the matching ICortexTool by name, invokes it with CortexSession, returns CortexResult.
 - **ICortexTool (C#)** -- Unified interface for all tools.
@@ -85,23 +85,23 @@ MCP Server (C#) -> SocketService -> CortexRouter -> ICortexTool
 ### C# (from repo root)
 
 ```bash
-dotnet build -c "Debug R25" src/RevitCortex.Plugin/RevitCortex.Plugin.csproj   # Revit 2025
-dotnet build -c "Debug R24" src/RevitCortex.Plugin/RevitCortex.Plugin.csproj   # Revit 2024
-dotnet build -c "Debug R23" src/RevitCortex.Plugin/RevitCortex.Plugin.csproj   # Revit 2023
-dotnet build -c "Debug R26" src/RevitCortex.Plugin/RevitCortex.Plugin.csproj   # Revit 2026
-dotnet build -c "Debug R27" src/RevitCortex.Plugin/RevitCortex.Plugin.csproj   # Revit 2027
+dotnet build -c "Debug R25" src/RevitFlux.Plugin/RevitFlux.Plugin.csproj   # Revit 2025
+dotnet build -c "Debug R24" src/RevitFlux.Plugin/RevitFlux.Plugin.csproj   # Revit 2024
+dotnet build -c "Debug R23" src/RevitFlux.Plugin/RevitFlux.Plugin.csproj   # Revit 2023
+dotnet build -c "Debug R26" src/RevitFlux.Plugin/RevitFlux.Plugin.csproj   # Revit 2026
+dotnet build -c "Debug R27" src/RevitFlux.Plugin/RevitFlux.Plugin.csproj   # Revit 2027
 ```
 
 ### C# MCP Server
 
 ```bash
-dotnet build src/RevitCortex.Server/RevitCortex.Server.csproj
+dotnet build src/RevitFlux.Server/RevitFlux.Server.csproj
 ```
 
 ### Tests
 
 ```bash
-dotnet test src/RevitCortex.Tests/RevitCortex.Tests.csproj -c "Debug R26"
+dotnet test src/RevitFlux.Tests/RevitFlux.Tests.csproj -c "Debug R26"
 ```
 
 > **Note:** Run tests by specifying the test project directly, not from the solution root.
@@ -187,7 +187,7 @@ node server/generate-tool-schemas-csharp.mjs
 
 ### Default Parameters to Override
 
-RevitCortex defaults are calibrated for completeness, not efficiency. Override these when appropriate.
+RevitFlux defaults are calibrated for completeness, not efficiency. Override these when appropriate.
 
 **get_project_info**: The **first call** of the session must be complete (all includes = true) to establish model context. Subsequent calls should filter: `{"includeLevels": false, "includeLinks": false, "includePhases": false, "includeWorksets": false}`.
 
@@ -311,16 +311,16 @@ When adding new destructive tools, always call `session.RequestConfirmation("act
 
 ## UI Components
 
-The plugin includes a Revit ribbon panel with two buttons (Cortex Switch, Settings) and a settings window for port, log level, and tool visibility.
+The plugin includes a Revit ribbon panel with two buttons (RevitFlux Switch, Settings) and a settings window for port, log level, and tool visibility.
 
 - **Commands/** -- IExternalCommand classes: ToggleConnection, OpenSettings
 - **UI/SettingsWindow** -- General settings, tools enable/disable
 - **UI/IconFactory** -- Generates ribbon icons programmatically (no PNG files)
 - **UI/ConfirmationHelper** -- TaskDialog for destructive operations
 
-The server is **off by default** -- user must click "Cortex Switch" in the ribbon to start it.
+The server is **off by default** -- user must click "RevitFlux Switch" in the ribbon to start it.
 
-Settings are stored in `~/.revitcortex/settings.json` (port, log level, disabled tools).
+Settings are stored in `~/.revitflux/settings.json` (port, log level, disabled tools).
 
 ## Deploy
 
@@ -328,7 +328,7 @@ Settings are stored in `~/.revitcortex/settings.json` (port, log level, disabled
 powershell -ExecutionPolicy Bypass -File deploy.ps1
 ```
 
-Deploys Plugin + Tools to `C:\ProgramData\Autodesk\Revit\Addins\2025\RevitCortex\`. Restart Revit after deploy.
+Deploys Plugin + Tools to `C:\ProgramData\Autodesk\Revit\Addins\2025\RevitFlux\`. Restart Revit after deploy.
 
 ## IMPORTANT: Detect Revit Language First
 
@@ -471,21 +471,21 @@ Code submitted via `send_code_to_revit` is validated at runtime before execution
 - `System.Reflection.Emit` -- dynamic code generation
 - `System.Runtime.InteropServices` -- native interop
 
-The sandbox is implemented in `CodeSandbox.Validate(string code)` in RevitCortex.Core. All tools that execute user-provided code MUST call this before execution. The sandbox can be bypassed only by disabling `send_code_to_revit` entirely in settings.
+The sandbox is implemented in `CodeSandbox.Validate(string code)` in RevitFlux.Core. All tools that execute user-provided code MUST call this before execution. The sandbox can be bypassed only by disabling `send_code_to_revit` entirely in settings.
 
 ### Audit Log
 
-Every tool execution is logged to `~/.revitcortex/audit.jsonl` with:
+Every tool execution is logged to `~/.revitflux/audit.jsonl` with:
 
 ```json
 {"ts": "ISO8601", "tool": "tool_name", "input_summary": "...", "result": "ok|fail", "error_code": null, "elements_affected": 0}
 ```
 
-The audit log is append-only. Implemented in `AuditLogger` in RevitCortex.Core. CortexRouter calls `AuditLogger.Log()` after every tool invocation. Log rotation is not automatic -- the file grows indefinitely (acceptable for local use).
+The audit log is append-only. Implemented in `AuditLogger` in RevitFlux.Core. CortexRouter calls `AuditLogger.Log()` after every tool invocation. Log rotation is not automatic -- the file grows indefinitely (acceptable for local use).
 
 ### Read-Only Mode
 
-When `readOnlyMode: true` is set in `~/.revitcortex/settings.json`, CortexRouter rejects all write tools with `CortexErrorCode.PermissionDenied`. This is enforced in the router via `CortexRouter.ReadOnlyMode`.
+When `readOnlyMode: true` is set in `~/.revitflux/settings.json`, CortexRouter rejects all write tools with `CortexErrorCode.PermissionDenied`. This is enforced in the router via `CortexRouter.ReadOnlyMode`.
 
 Read-only classification uses a **naming convention** (no interface change needed):
 

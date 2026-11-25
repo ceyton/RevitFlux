@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>RevitFlux</Name>
+    <Assembly>RevitFlux\RevitFlux.Plugin.dll</Assembly>
+    <FullClassName>RevitFlux.Plugin.RevitFluxApp</FullClassName>
+    <AddInId>7C0E6B52-3F1D-4D0B-9A57-2E8F41C6D913</AddInId>
+    <VendorId>RevitFlux</VendorId>
+    <VendorDescription>RevitFlux for Autodesk Revit. Based on RevitCortex by Luigi Dattilo (MIT)</VendorDescription>
+  </AddIn>
+</RevitAddIns>
