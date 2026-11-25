@@ -23,7 +23,7 @@ public static class LinkTools
         if (positionY != null) p["positionY"] = positionY;
         if (positionZ != null) p["positionZ"] = positionZ;
         var result = await revit.ExecuteAsync("add_linked_file", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "align_link_to_host"), Description("Aligns a link instance to the host project's internal origin, shared coordinates, or project base point.")]
@@ -36,7 +36,7 @@ public static class LinkTools
         var p = new JObject { ["instanceId"] = instanceId };
         if (alignMode != null) p["alignMode"] = alignMode;
         var result = await revit.ExecuteAsync("align_link_to_host", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_link_transform"), Description("Returns the full transform of a linked file instance.")]
@@ -47,35 +47,17 @@ public static class LinkTools
     {
         var p = new JObject { ["instanceId"] = linkInstanceId };
         var result = await revit.ExecuteAsync("get_link_transform", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_linked_file_instances"), Description("Lists all linked Revit files grouped by type, with transforms and load status.")]
     public static async Task<string> GetLinkedFileInstances(
         RevitConnectionManager revit,
-        [Description("Strip transform matrix (origin/basisX/basisY) per instance. Default: false")] bool compact = false,
+        [Description("Strip transform matrix (origin/basisX/basisY) per instance. Default: true")] bool compact = true,
         CancellationToken ct = default)
     {
         var result = await revit.ExecuteAsync("get_linked_file_instances", new JObject(), ct);
-        return ToolResponseShaper.Shape("get_linked_file_instances", result, compact, summaryOnly: false).ToString();
-    }
-
-    [McpServerTool(Name = "get_coordination_models"), Description("Read-only listing of Autodesk Revit Coordination Models with type metadata and optional instances.")]
-    public static async Task<string> GetCoordinationModels(
-        RevitConnectionManager revit,
-        [Description("Optional case-insensitive filter applied to coordination model names.")] string? nameFilter = null,
-        [Description("Include instance records. Default: true.")] bool? includeInstances = null,
-        [Description("Maximum instance records to include. Default: 100, cap: 250.")] int? maxInstances = null,
-        [Description("Strip per-item verbose metadata (path, pathType, origin, instance name) while preserving counters and identifiers. Default: false")] bool compact = false,
-        CancellationToken ct = default)
-    {
-        var p = new JObject();
-        if (nameFilter != null) p["nameFilter"] = nameFilter;
-        if (includeInstances != null) p["includeInstances"] = includeInstances;
-        if (maxInstances != null) p["maxInstances"] = maxInstances;
-        if (compact) p["compact"] = compact;
-        var result = await revit.ExecuteAsync("get_coordination_models", p, ct);
-        return ToolResponseShaper.Shape("get_coordination_models", result, compact, summaryOnly: false).ToString();
+        return ToolResponseShaper.Shape("get_linked_file_instances", result, compact, summaryOnly: false).ToLean();
     }
 
     [McpServerTool(Name = "get_selected_linked_elements"), Description("Returns info about currently selected link instances.")]
@@ -84,7 +66,7 @@ public static class LinkTools
         CancellationToken ct = default)
     {
         var result = await revit.ExecuteAsync("get_selected_linked_elements", new JObject(), ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "highlight_linked_element"), Description("Highlights an element inside a linked model with an optional section box.")]
@@ -104,34 +86,7 @@ public static class LinkTools
         if (createSectionBox != null) p["createSectionBox"] = createSectionBox;
         if (offset != null) p["offset"] = offset;
         var result = await revit.ExecuteAsync("highlight_linked_element", p, ct);
-        return result.ToString();
-    }
-
-    [McpServerTool(Name = "show_cross_model_elements"), Description("Select host elements plus elements in linked Revit models. Two strategies for visibility: (a) default — create red DirectShape markers in the host doc around each linked element's bounding box (synchronous, transactional, robust); (b) usePostCommandIsolate=true — use Revit's native IsolateElements via PostCommand after SetReferences (canonical Revit API pattern, but asynchronous: tool returns before isolate completes, and cannot be combined with section box / overrides in the same call).")]
-    public static async Task<string> ShowCrossModelElements(
-        RevitConnectionManager revit,
-        [Description("Host document element IDs to include")] long[]? hostElementIds = null,
-        [Description("JSON array of linked targets: [{\"instanceId\":2409055,\"linkedElementId\":1413682}]")] string? linkedElements = null,
-        [Description("Select host elements and linked-element references. Default: true")] bool? select = null,
-        [Description("Temporarily isolate host elements and link instances. Default: true")] bool? isolate = null,
-        [Description("Create a 3D section box around all targets. Default: true. Ignored when usePostCommandIsolate=true.")] bool? createSectionBox = null,
-        [Description("Create red DirectShape markers in the host doc around each linked element's bounding box. Default: true. Ignored when usePostCommandIsolate=true.")] bool? createLinkedMarkers = null,
-        [Description("Use Revit's native PostCommand(IsolateElement) instead of the marker strategy. Default: false. Asynchronous: tool returns before isolate completes; section box and markers are skipped.")] bool? usePostCommandIsolate = null,
-        [Description("Section box padding in mm. Default: 1200")] double? offset = null,
-        CancellationToken ct = default)
-    {
-        var p = new JObject();
-        if (hostElementIds != null) p["hostElementIds"] = new JArray(hostElementIds.Cast<object>().ToArray());
-        if (linkedElements != null) p["linkedElements"] = JArray.Parse(linkedElements);
-        if (select != null) p["select"] = select;
-        if (isolate != null) p["isolate"] = isolate;
-        if (createSectionBox != null) p["createSectionBox"] = createSectionBox;
-        if (createLinkedMarkers != null) p["createLinkedMarkers"] = createLinkedMarkers;
-        if (usePostCommandIsolate != null) p["usePostCommandIsolate"] = usePostCommandIsolate;
-        if (offset != null) p["offset"] = offset;
-
-        var result = await revit.ExecuteAsync("show_cross_model_elements", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "manage_links"), Description("List, reload, reload-from-path, unload, or remove linked files. To add a NEW link use add_linked_file instead.")]
@@ -146,7 +101,7 @@ public static class LinkTools
         if (linkId != null) p["linkId"] = linkId;
         if (newPath != null) p["newPath"] = newPath;
         var result = await revit.ExecuteAsync("manage_links", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "move_link_instance"), Description("Moves a linked file instance. mode=delta applies (x,y,z) as an offset; mode=absolute places the origin at (x,y,z). Values are in mm.")]
@@ -165,7 +120,7 @@ public static class LinkTools
         if (z != null) p["z"] = z;
         if (mode != null) p["mode"] = mode;
         var result = await revit.ExecuteAsync("move_link_instance", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "pin_unpin_link_instance"), Description("Pins or unpins linked file instances.")]
@@ -178,7 +133,7 @@ public static class LinkTools
         var p = new JObject { ["instanceIds"] = new JArray(instanceIds.Cast<object>().ToArray()) };
         if (pin != null) p["pin"] = pin;
         var result = await revit.ExecuteAsync("pin_unpin_link_instance", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "reload_linked_file_from"), Description("Reloads a linked Revit file from a different file path.")]
@@ -194,7 +149,7 @@ public static class LinkTools
             ["newPath"] = newPath,
         };
         var result = await revit.ExecuteAsync("reload_linked_file_from", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "cad_link_cleanup"), Description("Analyze and clean up imported/linked CAD files. action=list|delete.")]
@@ -212,6 +167,6 @@ public static class LinkTools
         if (deleteLinks != null) p["deleteLinks"] = deleteLinks;
         if (elementIds != null) p["elementIds"] = new JArray(elementIds.Cast<object>().ToArray());
         var result = await revit.ExecuteAsync("cad_link_cleanup", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 }

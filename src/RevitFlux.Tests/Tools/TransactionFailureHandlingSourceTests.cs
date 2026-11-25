@@ -44,8 +44,6 @@ public class TransactionFailureHandlingSourceTests
     [InlineData("Parameters", "AddPrefixSuffixTool.cs")]
     [InlineData("Parameters", "SyncCsvParametersTool.cs")]
     [InlineData("Elements", "BatchRenameTool.cs")]
-    [InlineData("Workflows", "WorkflowSheetSetTool.cs")]
-    [InlineData("Workflows", "WorkflowRoomDocumentationTool.cs")]
     // 2026-06-19 transaction-safety sweep: tools hardened from the static audit.
     [InlineData("Elements", "CopyElementsTool.cs")]
     [InlineData("Elements", "ChangeElementTypeTool.cs")]
@@ -93,19 +91,7 @@ public class TransactionFailureHandlingSourceTests
     [InlineData("LinkedFiles", "PinUnpinLinkInstanceTool.cs")]
     [InlineData("LinkedFiles", "MoveLinkInstanceTool.cs")]
     [InlineData("LinkedFiles", "HighlightLinkedElementTool.cs")]
-    [InlineData("LinkedFiles", "ShowCrossModelElementsTool.cs")]
-    [InlineData("Workflows", "WorkflowClashReviewTool.cs")]
     [InlineData("Project", "SetCompoundStructureTool.cs")]
-    [InlineData("IFC", "IfcTagUnreconstructableElementsTool.cs")]
-    [InlineData("IFC", "IfcReloadLinkTool.cs")]
-    [InlineData("IFC", "IfcExportWithConfigurationTool.cs")]
-    [InlineData("IFC", "IfcExportBasicTool.cs")]
-    [InlineData("StructuralSteel", "StructuralSteelConnectionTools.cs")]
-    [InlineData("StructuralSteel", "StructuralSteelCutTools.cs")]
-    [InlineData("StructuralSteel", "StructuralSteelFabricationTools.cs")]
-    [InlineData("Rebar", "RebarCreationTools.cs")]
-    [InlineData("Rebar", "RebarSystemTools.cs")]
-    [InlineData("Rebar", "FabricReinforcementTools.cs")]
     public void BatchWriteTools_AdoptTheFailurePreprocessor(string folder, string file)
     {
         var src = ReadTool(folder, file);

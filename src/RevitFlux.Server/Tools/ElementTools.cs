@@ -13,7 +13,7 @@ public static class ElementTools
         RevitConnectionManager revit,
         [Description("Array of Revit element IDs to query")] long[] elementIds,
         [Description("Include type-level parameters. Default: true")] bool includeTypeParameters = true,
-        [Description("Return compact parameter rows (name+value only) and skip empty params. Default: false")] bool compact = false,
+        [Description("Return compact parameter rows (name+value only) and skip empty params. Default: true")] bool compact = true,
         CancellationToken ct = default)
     {
         var p = new JObject
@@ -22,10 +22,10 @@ public static class ElementTools
             ["includeTypeParameters"] = includeTypeParameters,
         };
         var result = await revit.ExecuteAsync("get_element_parameters", p, ct);
-        return ToolResponseShaper.Shape("get_element_parameters", result, compact, summaryOnly: false).ToString();
+        return ToolResponseShaper.Shape("get_element_parameters", result, compact, summaryOnly: false).ToLean();
     }
 
-    [McpServerTool(Name = "get_element_solid_geometry"), Description("Get an element's REAL solid geometry (bounding box, centroid, volume m3, face/edge counts AND inferred cross-section shape: circular/rectangular/complex) in mm and model coordinates. Unlike get_BoundingBox this reflects the actual solid AFTER joins and cuts, and reports the section SHAPE — essential for rebar: a 613x613 bbox can be a Ø610 circular pile where corner bars/rectangular ties fall outside. Always use this, not the bounding box, to position rebar inside a host.")]
+    [McpServerTool(Name = "get_element_solid_geometry"), Description("Real solid geometry after joins and cuts, in mm: bounding box, centroid, volume, face/edge counts, section shape.")]
     public static async Task<string> GetElementSolidGeometry(
         RevitConnectionManager revit,
         [Description("Revit element ID to inspect")] long elementId,
@@ -38,7 +38,7 @@ public static class ElementTools
             ["maxSolids"] = maxSolids,
         };
         var result = await revit.ExecuteAsync("get_element_solid_geometry", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "ai_element_filter"), Description("Query elements by category, element class, family symbol, bounding box, or level. Filters combine with AND (default) or OR, and the whole set can be inverted (NOT). Supports type and instance filtering. For parameter-VALUE filtering use filter_by_parameter_value.")]
@@ -64,7 +64,7 @@ public static class ElementTools
 
         var p = new JObject { ["data"] = data };
         var result = await revit.ExecuteAsync("ai_element_filter", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_selected_elements"), Description("Get currently selected elements in Revit.")]
@@ -73,21 +73,7 @@ public static class ElementTools
         CancellationToken ct = default)
     {
         var result = await revit.ExecuteAsync("get_selected_elements", new JObject(), ct);
-        return result.ToString();
-    }
-
-    [McpServerTool(Name = "get_elements_by_unique_id"), Description("Resolve Revit UniqueId strings to ElementId records for cross-app workflows.")]
-    public static async Task<string> ResolveElementsByUniqueId(
-        RevitConnectionManager revit,
-        [Description("Array of Revit UniqueId strings to resolve")] string[] uniqueIds,
-        CancellationToken ct = default)
-    {
-        var p = new JObject
-        {
-            ["uniqueIds"] = new JArray(uniqueIds)
-        };
-        var result = await revit.ExecuteAsync("get_elements_by_unique_id", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "operate_element"), Description("Select, highlight, isolate, hide, or zoom to elements. Actions: select, selectionbox, setcolor, settransparency, hide, temphide, isolate, unhide, resetisolate, delete.")]
@@ -104,7 +90,7 @@ public static class ElementTools
         };
         var p = new JObject { ["data"] = data };
         var result = await revit.ExecuteAsync("operate_element", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "copy_elements"), Description("Copy elements with optional mm offset. Can target a different view (sourceViewId+targetViewId) or another OPEN document (targetDocumentTitle).")]
@@ -130,7 +116,7 @@ public static class ElementTools
         if (offsetY != null) p["offsetY"] = offsetY;
         if (offsetZ != null) p["offsetZ"] = offsetZ;
         var result = await revit.ExecuteAsync("copy_elements", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "delete_selection"), Description("Delete a saved selection filter by name")]
@@ -141,7 +127,7 @@ public static class ElementTools
     {
         var p = new JObject { ["name"] = name };
         var result = await revit.ExecuteAsync("delete_selection", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "find_undimensioned_elements"), Description("Find elements not referenced by dimensions")]
@@ -156,7 +142,7 @@ public static class ElementTools
         if (category != null) { p["categories"] = new JArray(category); p["category"] = category; }
         if (viewId != null) p["viewId"] = viewId;
         var result = await revit.ExecuteAsync("find_undimensioned_elements", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "find_untagged_elements"), Description("Find elements without tags in a view")]
@@ -171,7 +157,7 @@ public static class ElementTools
         if (category != null) { p["categories"] = new JArray(category); p["category"] = category; }
         if (viewId != null) p["viewId"] = viewId;
         var result = await revit.ExecuteAsync("find_untagged_elements", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "match_element_properties"), Description("Copy parameter values from one source element to one or more target elements.")]
@@ -191,7 +177,7 @@ public static class ElementTools
         if (parameterNames != null) p["parameterNames"] = new JArray(parameterNames);
         if (includeTypeParameters != null) p["includeTypeParameters"] = includeTypeParameters;
         var result = await revit.ExecuteAsync("match_element_properties", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "measure_between_elements"), Description("Measure distance between two elements or two points in mm. Provide either elementId1/elementId2, or point1/point2 (as JSON arrays [x,y,z]).")]
@@ -211,7 +197,7 @@ public static class ElementTools
         if (point2 != null) p["point2"] = JArray.Parse(point2);
         if (measureType != null) p["measureType"] = measureType;
         var result = await revit.ExecuteAsync("measure_between_elements", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "renumber_elements"), Description("Renumber rooms/doors/windows by location or name. Writes into the specified parameter; supports prefix/suffix and start/increment.")]
@@ -239,7 +225,7 @@ public static class ElementTools
         if (sortBy != null) p["sortBy"] = sortBy;
         if (dryRun != null) p["dryRun"] = dryRun;
         var result = await revit.ExecuteAsync("renumber_elements", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "save_selection"), Description("Save element selection as named filter")]
@@ -250,7 +236,7 @@ public static class ElementTools
     {
         var p = new JObject { ["name"] = name };
         var result = await revit.ExecuteAsync("save_selection", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "load_selection"), Description("List or load saved selections")]
@@ -263,7 +249,7 @@ public static class ElementTools
         var p = new JObject { ["action"] = action };
         if (name != null) p["name"] = name;
         var result = await revit.ExecuteAsync("load_selection", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "section_box_from_selection"), Description("Create a 3D section box from selected elements")]
@@ -275,7 +261,7 @@ public static class ElementTools
         var p = new JObject();
         if (elementIds != null) p["elementIds"] = new JArray(elementIds.Cast<object>().ToArray());
         var result = await revit.ExecuteAsync("section_box_from_selection", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "set_element_phase"), Description("Assign created/demolished phase to elements. Pass a JSON array of requests: [{elementId, phaseCreatedId?, phaseDemolishedId?}].")]
@@ -286,7 +272,7 @@ public static class ElementTools
     {
         var p = new JObject { ["requests"] = JArray.Parse(requests) };
         var result = await revit.ExecuteAsync("set_element_phase", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "set_element_workset"), Description("Move elements to a different workset. Pass a JSON array of requests: [{elementId, worksetName}]. Worksets are resolved by name only.")]
@@ -297,7 +283,7 @@ public static class ElementTools
     {
         var p = new JObject { ["requests"] = JArray.Parse(requests) };
         var result = await revit.ExecuteAsync("set_element_workset", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_elements_in_spatial_volume"), Description("Find elements within a 3D bounding box or room volume. volumeType=room uses volumeIds; volumeType=custom uses customMinX..customMaxZ.")]
@@ -314,7 +300,7 @@ public static class ElementTools
         [Description("Custom box max Y (when volumeType=custom)")] double? customMaxY = null,
         [Description("Custom box max Z (when volumeType=custom)")] double? customMaxZ = null,
         [Description("For volumeType=room, confirm containment against the real room solid (ClosedShell) instead of the room bounding box. Default: true.")] bool? useRoomSolid = null,
-        [Description("Strip per-element extras. Default: false")] bool compact = false,
+        [Description("Strip per-element extras. Default: true")] bool compact = true,
         CancellationToken ct = default)
     {
         var p = new JObject();
@@ -330,7 +316,7 @@ public static class ElementTools
         if (customMaxY != null) p["customMaxY"] = customMaxY;
         if (customMaxZ != null) p["customMaxZ"] = customMaxZ;
         var result = await revit.ExecuteAsync("get_elements_in_spatial_volume", p, ct);
-        return ToolResponseShaper.Shape("get_elements_in_spatial_volume", result, compact, summaryOnly: false).ToString();
+        return ToolResponseShaper.Shape("get_elements_in_spatial_volume", result, compact, summaryOnly: false).ToLean();
     }
 
     [McpServerTool(Name = "get_linked_elements"), Description("Query elements from linked Revit models with optional filtering. parameterNames is additive — without it only basic fields are returned.")]
@@ -348,7 +334,7 @@ public static class ElementTools
         if (parameterNames != null) p["parameterNames"] = new JArray(parameterNames);
         if (maxElements != null) p["maxElements"] = maxElements;
         var result = await revit.ExecuteAsync("get_linked_elements", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_room_openings"), Description("Get doors/windows adjacent to rooms with dimensions. Filter by roomIds, roomNumbers, or levelName.")]
@@ -362,7 +348,7 @@ public static class ElementTools
         [Description("Include opening element parameters in response. Default: false")] bool? includeElementParams = null,
         [Description("Specific parameter names to extract")] string[]? parameterNames = null,
         [Description("Max elements per room. Default: 100")] int? maxElementsPerRoom = null,
-        [Description("Return a compact payload. Default: false")] bool compact = false,
+        [Description("Return a compact payload. Default: true")] bool compact = true,
         [Description("Return counts without nested opening arrays. Default: false")] bool summaryOnly = false,
         CancellationToken ct = default)
     {
@@ -376,7 +362,7 @@ public static class ElementTools
         if (parameterNames != null) p["parameterNames"] = new JArray(parameterNames);
         if (maxElementsPerRoom != null) p["maxElementsPerRoom"] = maxElementsPerRoom;
         var result = await revit.ExecuteAsync("get_room_openings", p, ct);
-        return ToolResponseShaper.Shape("get_room_openings", result, compact, summaryOnly).ToString();
+        return ToolResponseShaper.Shape("get_room_openings", result, compact, summaryOnly).ToLean();
     }
 
     [McpServerTool(Name = "modify_element"), Description("Move, rotate, mirror, or copy elements. Vectors are {\"x\":mm,\"y\":mm,\"z\":mm} JSON objects. move needs translation; rotate needs rotationCenter + rotationAngle (degrees) and optionally rotationAxis (default Z); mirror needs mirrorPlaneOrigin + mirrorPlaneNormal; copy needs copyOffset.")]
@@ -406,6 +392,6 @@ public static class ElementTools
         if (mirrorPlaneNormal != null) p["mirrorPlaneNormal"] = JToken.Parse(mirrorPlaneNormal);
         if (copyOffset != null) p["copyOffset"] = JToken.Parse(copyOffset);
         var result = await revit.ExecuteAsync("modify_element", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 }

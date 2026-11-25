@@ -12,11 +12,11 @@ public static class MaterialTools
     [McpServerTool(Name = "get_materials"), Description("List all materials in the active Revit document.")]
     public static async Task<string> GetMaterials(
         RevitConnectionManager revit,
-        [Description("Strip numeric appearance props (transparency/shininess/smoothness). Default: false")] bool compact = false,
+        [Description("Strip numeric appearance props (transparency/shininess/smoothness). Default: true")] bool compact = true,
         CancellationToken ct = default)
     {
         var result = await revit.ExecuteAsync("get_materials", new JObject(), ct);
-        return ToolResponseShaper.Shape("get_materials", result, compact, summaryOnly: false).ToString();
+        return ToolResponseShaper.Shape("get_materials", result, compact, summaryOnly: false).ToLean();
     }
 
     [McpServerTool(Name = "create_material"), Description("Create a new material in the Revit project.")]
@@ -31,7 +31,7 @@ public static class MaterialTools
         if (materialClass != null) p["materialClass"] = materialClass;
         if (color != null) p["color"] = color;
         var result = await revit.ExecuteAsync("create_material", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_compound_structure"), Description("Get wall/floor/roof/ceiling layer structure by type ID or name.")]
@@ -45,7 +45,7 @@ public static class MaterialTools
         if (typeId != null) p["typeId"] = typeId;
         if (typeName != null) p["typeName"] = typeName;
         var result = await revit.ExecuteAsync("get_compound_structure", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "set_compound_structure"), Description("Modify compound structure on a wall/floor/roof/ceiling type. action=replace|add|remove|modify|set_wrapping. set_wrapping sets openingWrapping (none|exterior|interior|both), endCap (none|exterior|interior), and per-layer layerWrapping.")]
@@ -67,7 +67,7 @@ public static class MaterialTools
         if (endCap != null) p["endCap"] = endCap;
         if (layerWrapping != null) p["layerWrapping"] = JArray.Parse(layerWrapping);
         var result = await revit.ExecuteAsync("set_compound_structure", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_material_properties"), Description("Get detailed material properties (physical, thermal, appearance) by material ID or name.")]
@@ -81,7 +81,7 @@ public static class MaterialTools
         if (materialId != null) p["materialId"] = materialId;
         if (materialName != null) p["materialName"] = materialName;
         var result = await revit.ExecuteAsync("get_material_properties", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_material_quantities"), Description("Calculate material area and volume across elements, optionally filtered by category or restricted to the current selection.")]
@@ -99,7 +99,7 @@ public static class MaterialTools
         if (maxResults != null) p["maxResults"] = maxResults;
         if (maxElements != null) p["maxElements"] = maxElements;
         var result = await revit.ExecuteAsync("get_material_quantities", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "delete_material"), Description("Delete a material from the project by ID or name.")]
@@ -113,7 +113,7 @@ public static class MaterialTools
         if (materialId != null) p["materialId"] = materialId;
         if (materialName != null) p["materialName"] = materialName;
         var result = await revit.ExecuteAsync("delete_material", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "duplicate_material"), Description("Duplicate an existing material with a new name.")]
@@ -128,7 +128,7 @@ public static class MaterialTools
         if (sourceMaterialId != null) p["sourceMaterialId"] = sourceMaterialId;
         if (sourceMaterialName != null) p["sourceMaterialName"] = sourceMaterialName;
         var result = await revit.ExecuteAsync("duplicate_material", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "duplicate_family_type"), Description("Duplicate a loadable family type with a new name and optional parameter overrides.")]
@@ -147,6 +147,6 @@ public static class MaterialTools
         if (familyName != null) p["familyName"] = familyName;
         if (parameterOverrides != null) p["parameterOverrides"] = JObject.Parse(parameterOverrides);
         var result = await revit.ExecuteAsync("duplicate_family_type", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 }

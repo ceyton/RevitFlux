@@ -23,7 +23,7 @@ public static class ParameterTools
         }
         var p = new JObject { ["requests"] = parsed };
         var result = await revit.ExecuteAsync("set_element_parameters", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "bulk_modify_parameter_values"), Description("Bulk modify parameter values across elements by category. Supports set, find-and-replace, and other operations.")]
@@ -53,7 +53,7 @@ public static class ParameterTools
         if (includeSample != null) p["includeSample"] = includeSample;
         if (sampleLimit != null) p["sampleLimit"] = sampleLimit;
         var result = await revit.ExecuteAsync("bulk_modify_parameter_values", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "filter_by_parameter_value"), Description("Filter elements by one parameter condition, or several combined with AND/OR via the conditions array. Conditions: equals, not_equals, contains, not_contains, begins_with, ends_with, greater_than, less_than, is_empty, is_not_empty.")]
@@ -79,7 +79,7 @@ public static class ParameterTools
         if (parameterType != null) p["parameterType"] = parameterType;
         if (scope != null) p["scope"] = scope;
         var result = await revit.ExecuteAsync("filter_by_parameter_value", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "sync_csv_parameters"), Description("Synchronize parameter values from CSV data into Revit elements.")]
@@ -92,7 +92,7 @@ public static class ParameterTools
         var p = new JObject { ["data"] = JArray.Parse(data) };
         if (dryRun != null) p["dryRun"] = dryRun;
         var result = await revit.ExecuteAsync("sync_csv_parameters", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "add_prefix_suffix"), Description("Add a prefix and/or suffix to parameter values across the model or a selection. Runs as a dry-run preview by default; set dryRun=false to apply the changes.")]
@@ -116,7 +116,7 @@ public static class ParameterTools
         if (scope != null) p["scope"] = scope;
         if (categories != null) p["categories"] = JArray.Parse(categories);
         var result = await revit.ExecuteAsync("add_prefix_suffix", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "clear_parameter_values"), Description("Clear parameter values on elements by category or scope")]
@@ -131,7 +131,7 @@ public static class ParameterTools
         if (scope != null) p["scope"] = scope;
         if (categories != null) p["categories"] = JArray.Parse(categories);
         var result = await revit.ExecuteAsync("clear_parameter_values", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "add_shared_parameter"), Description("Add a shared parameter to project categories. The data type of a newly created definition is honored (a typed shared parameter, not always Text).")]
@@ -153,7 +153,7 @@ public static class ParameterTools
         if (isInstance != null) p["isInstance"] = isInstance;
         if (dataType != null) p["dataType"] = dataType;
         var result = await revit.ExecuteAsync("add_shared_parameter", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "manage_project_parameters"), Description("Manage project parameters. Actions: list | create | delete | modify | set_group | set_binding_type | rename. 'delete' now correctly removes non-shared parameters too (works around Revit bug REVIT-136670 by deleting the ParameterElement) and verifies removal. 'modify' supports add/remove/replace on category bindings. 'set_group' bulk-changes the group assignment. 'set_binding_type' toggles a parameter between instance and type. 'rename' is NOT supported by the Revit API for bound project parameters and returns guidance (only global parameters can be renamed).")]
@@ -182,7 +182,7 @@ public static class ParameterTools
         if (newName != null) p["newName"] = newName;
         if (dryRun != null) p["dryRun"] = dryRun;
         var result = await revit.ExecuteAsync("manage_project_parameters", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "transfer_parameters"), Description("Copy parameter values from source element to one or more target elements.")]
@@ -204,7 +204,7 @@ public static class ParameterTools
         if (includeType != null) p["includeType"] = includeType;
         if (dryRun != null) p["dryRun"] = dryRun;
         var result = await revit.ExecuteAsync("transfer_parameters", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "export_shared_parameter_file"), Description("Export shared parameter file contents")]
@@ -216,7 +216,7 @@ public static class ParameterTools
         var p = new JObject();
         if (outputPath != null) p["outputPath"] = outputPath;
         var result = await revit.ExecuteAsync("export_shared_parameter_file", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "manage_global_parameters"), Description("Manage global parameters (project-level named values). Actions: list | get | create | set | delete | rename | set_formula | move_up | move_down | sort. Unlike project/shared parameters, global parameters CAN be renamed. 'set_formula' drives the value by a formula (empty string clears it). 'move_up'/'move_down' reorder within the group; 'sort' orders ascending/descending.")]
@@ -239,6 +239,6 @@ public static class ParameterTools
         if (formula  != null) p["formula"]  = formula;
         if (order    != null) p["order"]    = order;
         var result = await revit.ExecuteAsync("manage_global_parameters", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 }

@@ -74,11 +74,9 @@ public class ServerToolForwardingSourceTests
     [Fact]
     public void FragileTools_ExposeDefensiveRuntimeGuards()
     {
-        var ifcExport = ReadPluginTool("RevitFlux.Tools", "IFC", "IfcExportBasicTool.cs");
         var duplicateSheetWithViews = ReadPluginTool("RevitFlux.Tools", "Sheets", "DuplicateSheetWithViewsTool.cs");
         var linesPerViewCount = ReadPluginTool("RevitFlux.Tools", "Project", "LinesPerViewCountTool.cs");
 
-        Assert.Contains("NormalizeIfcFileName", ifcExport);
         Assert.Contains("skippedSchedules", duplicateSheetWithViews);
         Assert.Contains("timeBudgetMs", linesPerViewCount);
     }

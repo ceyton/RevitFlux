@@ -15,7 +15,8 @@ An MCP server and add-in that lets AI assistants work with Autodesk Revit.
 - Tests no longer write to the user's audit log.
 - Connection failures return a clear message (for example, when the Revit switch is off).
 - Dedicated RevitFlux ribbon tab with its own icons.
-- Power BI features, support reports and upstream update checks are removed.
+- Token-lean: only core tools are listed, the rest are found with `find_tools` and run with `run_tool`; results are compact tables, and oversized ones are saved to `~/.revitflux/results` (kept about a day) with a preview.
+- Removed: rebar, structural steel, IFC, Power BI, workflow, Navisworks selection, support report and update-check features.
 
 ## Side by side with RevitCortex
 

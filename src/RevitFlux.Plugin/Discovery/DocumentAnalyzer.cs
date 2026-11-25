@@ -23,21 +23,11 @@ public class DocumentAnalyzer : IDocumentAnalyzer
             .OfClass(typeof(RevitLinkInstance))
             .GetElementCount() > 0;
 
-        var elements = new FilteredElementCollector(doc)
-            .WhereElementIsNotElementType();
-
-        foreach (Element elem in elements)
+        // Runs on every document switch, so never walk all elements here.
+        if (new FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Rooms)
+            .WhereElementIsNotElementType().FirstElementId() != ElementId.InvalidElementId)
         {
-            var cat = elem.Category;
-            if (cat != null)
-            {
-#if REVIT2025_OR_GREATER
-                caps.PresentCategories.Add(cat.BuiltInCategory.ToString());
-#else
-                var bic = (BuiltInCategory)cat.Id.IntegerValue;
-                caps.PresentCategories.Add(bic.ToString());
-#endif
-            }
+            caps.PresentCategories.Add("OST_Rooms");
         }
 
         if (caps.HasWorksets)
@@ -62,7 +52,6 @@ public class DocumentAnalyzer : IDocumentAnalyzer
             caps.EnableTool("move_link_instance");
             caps.EnableTool("align_link_to_host");
             caps.EnableTool("highlight_linked_element");
-            caps.EnableTool("show_cross_model_elements");
             caps.EnableTool("get_selected_linked_elements");
         }
 

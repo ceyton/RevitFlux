@@ -18,7 +18,6 @@ public class DocumentCapabilities
         "move_link_instance",
         "align_link_to_host",
         "highlight_linked_element",
-        "show_cross_model_elements",
         "get_selected_linked_elements",
         "get_room_openings",
     };

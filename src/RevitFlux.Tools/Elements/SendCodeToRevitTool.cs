@@ -100,12 +100,11 @@ public class SendCodeToRevitTool : ICortexTool, ICommandTimeoutTool
         result = CodeDomExecutor.Execute(code!, globals, mode);
 #endif
 
-        // Attach script path to result so the caller knows where it was saved
-        if (result.Success && result.Data is not null)
+        // TEMP scripts are deleted at Revit close, so their path is not worth the tokens.
+        if (reusable && result.Success && result.Data is not null)
         {
             var data = Newtonsoft.Json.Linq.JObject.FromObject(result.Data);
             data["scriptSavedTo"] = scriptPath;
-            data["scriptLifetime"] = reusable ? "REUSABLE" : "TEMP (deleted at Revit close)";
             return CortexResult<object>.Ok(data);
         }
 

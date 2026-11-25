@@ -17,7 +17,7 @@ public static class ProjectTools
     {
         var p = new JObject { ["maxWarnings"] = maxWarnings };
         var result = await revit.ExecuteAsync("get_warnings", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_phases"), Description("List all project phases in the active Revit document.")]
@@ -26,7 +26,7 @@ public static class ProjectTools
         CancellationToken ct = default)
     {
         var result = await revit.ExecuteAsync("get_phases", new JObject(), ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_worksets"), Description("List all worksets in the active Revit document.")]
@@ -35,7 +35,7 @@ public static class ProjectTools
         CancellationToken ct = default)
     {
         var result = await revit.ExecuteAsync("get_worksets", new JObject(), ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "manage_worksets"), Description("Create, rename, delete, or set the active workset (workshared models only). To LIST worksets use get_worksets.")]
@@ -52,7 +52,7 @@ public static class ProjectTools
         if (worksetId != null) p["worksetId"] = worksetId;
         if (newName != null) p["newName"] = newName;
         var result = await revit.ExecuteAsync("manage_worksets", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "load_family"), Description("Load a family into the Revit project.")]
@@ -67,7 +67,7 @@ public static class ProjectTools
         if (familyPath != null) p["familyPath"] = familyPath;
         if (categoryFilter != null) p["categoryFilter"] = categoryFilter;
         var result = await revit.ExecuteAsync("load_family", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_available_family_types"), Description("List available family types in the Revit project.")]
@@ -76,7 +76,7 @@ public static class ProjectTools
         [Description("Filter by category names (OST codes, English, or localized labels)")] string[]? categoryList = null,
         [Description("Case-insensitive substring filter on family or type name")] string? familyNameFilter = null,
         [Description("Max types to return. Default: 100")] int? limit = null,
-        [Description("Return a compact payload without uniqueId-heavy rows. Default: false")] bool compact = false,
+        [Description("Return a compact payload without uniqueId-heavy rows. Default: true")] bool compact = true,
         CancellationToken ct = default)
     {
         var p = new JObject();
@@ -84,7 +84,7 @@ public static class ProjectTools
         if (familyNameFilter != null) p["familyNameFilter"] = familyNameFilter;
         if (limit != null) p["limit"] = limit;
         var result = await revit.ExecuteAsync("get_available_family_types", p, ct);
-        return ToolResponseShaper.Shape("get_available_family_types", result, compact, summaryOnly: false).ToString();
+        return ToolResponseShaper.Shape("get_available_family_types", result, compact, summaryOnly: false).ToLean();
     }
 
     [McpServerTool(Name = "analyze_model_statistics"), Description("Analyze element counts by category in the active Revit document.")]
@@ -95,7 +95,7 @@ public static class ProjectTools
     {
         var p = new JObject { ["compact"] = compact };
         var result = await revit.ExecuteAsync("analyze_model_statistics", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "check_model_health"), Description("Run a model health check and return a health score.")]
@@ -104,7 +104,7 @@ public static class ProjectTools
         CancellationToken ct = default)
     {
         var result = await revit.ExecuteAsync("check_model_health", new JObject(), ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "audit_families"), Description("Audit families in the Revit project. Lists loadable (.rfa) families by default; set includeSystemFamilies=true to also list system-family types (wall/floor/roof/ceiling types, including Foundation Slab).")]
@@ -114,7 +114,7 @@ public static class ProjectTools
         [Description("Include unused families in the audit")] bool includeUnused = false,
         [Description("Also enumerate system-family types (WallType/FloorType/RoofType/CeilingType). Default: false")] bool? includeSystemFamilies = null,
         [Description("Sort order: instance_count | name. Default: instance_count")] string? sortBy = null,
-        [Description("Return compact family rows without audit booleans (isInPlace/isEditable/isUnused/kind). Default: false")] bool compact = false,
+        [Description("Return compact family rows without audit booleans (isInPlace/isEditable/isUnused/kind). Default: true")] bool compact = true,
         CancellationToken ct = default)
     {
         var p = new JObject { ["includeUnused"] = includeUnused };
@@ -122,7 +122,7 @@ public static class ProjectTools
         if (includeSystemFamilies != null) p["includeSystemFamilies"] = includeSystemFamilies;
         if (sortBy != null) p["sortBy"] = sortBy;
         var result = await revit.ExecuteAsync("audit_families", p, ct);
-        return ToolResponseShaper.Shape("audit_families", result, compact, summaryOnly: false).ToString();
+        return ToolResponseShaper.Shape("audit_families", result, compact, summaryOnly: false).ToLean();
     }
 
     [McpServerTool(Name = "manage_phase_filters"), Description("List, set, or create Revit Phase Filters. Actions: list | set | create. The 'set' action changes one presentation (New | Demolished | Existing | Temporary) on one filter and preserves the other three. Presentations: None | ByCategory | Overridden | NotDisplayed.")]
@@ -152,7 +152,7 @@ public static class ProjectTools
         if (demolishedStatus != null) p["demolishedStatus"] = demolishedStatus;
         if (temporaryStatus != null) p["temporaryStatus"] = temporaryStatus;
         var result = await revit.ExecuteAsync("manage_phase_filters", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "purge_unused"), Description("Purge unused families/types and materials, and optionally unreferenced view templates and view filters, from the project.")]
@@ -167,7 +167,7 @@ public static class ProjectTools
         if (includeViewTemplates != null) p["includeViewTemplates"] = includeViewTemplates;
         if (includeFilters != null) p["includeFilters"] = includeFilters;
         var result = await revit.ExecuteAsync("purge_unused", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "clash_detection"), Description("Detect clashes between two element categories. Uses true solid-geometry intersection by default (fewer false positives than bounding boxes).")]
@@ -189,24 +189,7 @@ public static class ProjectTools
         };
         if (useSolidGeometry != null) p["useSolidGeometry"] = useSolidGeometry;
         var result = await revit.ExecuteAsync("clash_detection", p, ct);
-        return result.ToString();
-    }
-
-    [McpServerTool(Name = "workflow_model_audit"), Description("Run a complete model audit workflow.")]
-    public static async Task<string> WorkflowModelAudit(
-        RevitConnectionManager revit,
-        [Description("Include warnings in the response. Default: true")] bool? includeWarnings = null,
-        [Description("Include family lists in the response. Default: true")] bool? includeFamilies = null,
-        [Description("Maximum grouped warnings returned. Default: 50")] int? maxWarnings = null,
-        [Description("Strip warnings/families to summary fields only. Default: false")] bool compact = false,
-        CancellationToken ct = default)
-    {
-        var p = new JObject();
-        if (includeWarnings != null) p["includeWarnings"] = includeWarnings;
-        if (includeFamilies != null) p["includeFamilies"] = includeFamilies;
-        if (maxWarnings != null) p["maxWarnings"] = maxWarnings;
-        var result = await revit.ExecuteAsync("workflow_model_audit", p, ct);
-        return ToolResponseShaper.Shape("workflow_model_audit", result, compact, summaryOnly: false).ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_level"), Description("Create, edit, rename, or delete a level. action=create|set|rename|delete. For set/rename/delete identify the level by levelId or name.")]
@@ -230,7 +213,7 @@ public static class ProjectTools
         if (newName != null) p["newName"] = newName;
         if (dryRun != null) p["dryRun"] = dryRun;
         var result = await revit.ExecuteAsync("create_level", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_room"), Description("Create a new room in the Revit project.")]
@@ -249,7 +232,7 @@ public static class ProjectTools
         };
         if (name != null) p["name"] = name;
         var result = await revit.ExecuteAsync("create_room", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "delete_element"), Description("Delete elements from the Revit project.")]
@@ -265,7 +248,7 @@ public static class ProjectTools
             ["dryRun"] = dryRun,
         };
         var result = await revit.ExecuteAsync("delete_element", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "duplicate_system_type"), Description("Duplicate, rename, or delete a system type (wall, floor, roof, ceiling). action=duplicate|rename|delete.")]
@@ -285,7 +268,7 @@ public static class ProjectTools
         if (sourceTypeName != null) p["sourceTypeName"] = sourceTypeName;
         if (category != null) p["category"] = category;
         var result = await revit.ExecuteAsync("duplicate_system_type", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "batch_rename"), Description("Batch rename elements or system types in the Revit project. Supports both loadable-family elements and system types (wall/floor/ceiling/roof types).")]
@@ -308,7 +291,7 @@ public static class ProjectTools
         if (prefix != null) p["prefix"] = prefix;
         if (suffix != null) p["suffix"] = suffix;
         var result = await revit.ExecuteAsync("batch_rename", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "rename_families"), Description("Rename loaded families (and optionally their types) with find/replace, prefix, or suffix operations.")]
@@ -334,7 +317,7 @@ public static class ProjectTools
         if (renameTypes != null) p["renameTypes"] = renameTypes;
         if (dryRun != null) p["dryRun"] = dryRun;
         var result = await revit.ExecuteAsync("rename_families", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "tag_rooms"), Description("Tag rooms in the active view. Operates on the active view only — activate the correct view first.")]
@@ -348,7 +331,7 @@ public static class ProjectTools
         if (useLeader != null) p["useLeader"] = useLeader;
         if (roomIds != null) p["roomIds"] = new JArray(roomIds.Cast<object>().ToArray());
         var result = await revit.ExecuteAsync("tag_rooms", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "tag_walls"), Description("Tag walls at their midpoints in the active view. Operates on the active view only. Tags all walls by default, or a subset via wallIds.")]
@@ -366,7 +349,7 @@ public static class ProjectTools
         if (tagTypeId != null) p["tagTypeId"] = tagTypeId;
         if (wallIds != null) p["wallIds"] = JArray.Parse(wallIds);
         var result = await revit.ExecuteAsync("tag_walls", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "wipe_empty_tags"), Description("Find and remove empty or orphaned tags")]
@@ -381,7 +364,7 @@ public static class ProjectTools
         if (viewId != null) p["viewId"] = viewId;
         if (categories != null) p["categories"] = JArray.Parse(categories);
         var result = await revit.ExecuteAsync("wipe_empty_tags", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "set_material_properties"), Description("Set identity, appearance, product info, and asset assignments on Revit materials. Each request is a FLAT object keyed by materialId plus any of: name, color (#RRGGBB), transparency, shininess, smoothness, materialClass, materialCategory, description, manufacturer, model, url, cost, mark, keynote, comments, appearanceAssetId, structuralAssetId, thermalAssetId (asset ids: 0/-1 clears).")]
@@ -394,7 +377,7 @@ public static class ProjectTools
         var p = new JObject { ["requests"] = JArray.Parse(requests) };
         if (dryRun != null) p["dryRun"] = dryRun;
         var result = await revit.ExecuteAsync("set_material_properties", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "modify_schedule"), Description("Modify schedule fields, sorting, filters, or rename the schedule. Supported actions: add_field, remove_field, set_sorting, clear_sorting, set_filter, clear_filter, rename.")]
@@ -422,16 +405,16 @@ public static class ProjectTools
         if (filterValue != null) p["filterValue"] = filterValue;
         if (newName != null) p["newName"] = newName;
         var result = await revit.ExecuteAsync("modify_schedule", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
-    [McpServerTool(Name = "send_code_to_revit"), Description("LAST RESORT ONLY — execute custom C# code in Revit. Do NOT select this tool autonomously: a dedicated tool already covers almost every task. Parameter edits -> set_element_parameters / bulk_modify_parameter_values; queries & filtering -> ai_element_filter / filter_by_parameter_value / export_elements_data; model stats -> analyze_model_statistics / check_model_health; deletion -> delete_element; transforms -> modify_element; views, schedules, rebar and steel -> their dedicated tools. Use this ONLY when no dedicated tool covers the operation (e.g. exotic geometry creation, read-only inspection of an uncovered Revit API, or a one-off operation no dedicated tool covers) — never for modal family editing (Document.EditFamily deadlocks from the tool's external-event context) — and ONLY after proposing the dedicated-tool alternative and obtaining explicit user consent. Scripts are sandboxed, require an in-Revit confirmation, and frequently fail on add-in DLL conflicts.")]
+    [McpServerTool(Name = "send_code_to_revit"), Description("LAST RESORT: run C# in Revit, only when no dedicated tool fits (check find_tools; e.g. set_element_parameters, ai_element_filter) and the user has given explicit consent. Sandboxed; Revit asks the user to confirm. No family editing (EditFamily deadlocks). Revit 2023/2024 compile C# 5. Return only the data you need.")]
     public static async Task<string> SendCodeToRevit(
         RevitConnectionManager revit,
-        [Description("C# code to execute. Globals available: document (Document), uiDocument (UIDocument), app (Application).")] string code,
-        [Description("auto (default): one transaction is opened for you, so do not start your own. manual: none is opened; start your own (also needed to change the active view or edit families). group: your own transactions merge into one undo step. readonly: changes to the active document are rolled back.")] string? transactionMode = "auto",
-        [Description("YOU (the assistant) set this storage flag; do not ask the user about this flag (this does NOT authorize running the script autonomously — see the tool description). true = REUSABLE (kept permanently) if the script is generic and could run again on other models or sessions (e.g. a utility, a report, a recurring audit). false = TEMP (deleted at Revit close) if the script is specific to this one request, these specific element IDs, or this exact model. Default: false.")] bool? reusable = false,
-        [Description("Short human-readable name for the script file (no spaces, max 40 chars). Example: 'floor-thickness-audit'")] string? scriptName = null,
+        [Description("C# body. Globals: document, uiDocument, app")] string code,
+        [Description("auto: transaction opened for you. manual: open your own. group: yours merge into one undo. readonly: rolled back")] string? transactionMode = "auto",
+        [Description("Keep the script file for reuse")] bool? reusable = false,
+        [Description("Script file name")] string? scriptName = null,
         CancellationToken ct = default)
     {
         var p = new JObject { ["code"] = code };
@@ -439,85 +422,20 @@ public static class ProjectTools
         if (reusable != null) p["reusable"] = reusable;
         if (scriptName != null) p["scriptName"] = scriptName;
         var result = await revit.ExecuteAsync("send_code_to_revit", p, ct);
-        return result.ToString();
-    }
-
-    [McpServerTool(Name = "workflow_clash_review"), Description("Detect clashes between two categories and create a 3D section-boxed view for visual review.")]
-    public static async Task<string> WorkflowClashReview(
-        RevitConnectionManager revit,
-        [Description("First category (e.g. OST_Walls)")] string categoryA,
-        [Description("Second category (e.g. OST_Pipes)")] string categoryB,
-        [Description("Intersection tolerance in mm. Default: 0")] double? tolerance = null,
-        [Description("Create a section-boxed 3D view around detected clashes. Default: true")] bool? createSectionBox = null,
-        CancellationToken ct = default)
-    {
-        var p = new JObject
-        {
-            ["categoryA"] = categoryA,
-            ["categoryB"] = categoryB,
-        };
-        if (tolerance != null) p["tolerance"] = tolerance;
-        if (createSectionBox != null) p["createSectionBox"] = createSectionBox;
-        var result = await revit.ExecuteAsync("workflow_clash_review", p, ct);
-        return result.ToString();
-    }
-
-    [McpServerTool(Name = "workflow_data_roundtrip"), Description("Export parameters to Excel for external editing, then re-import once the file has been saved.")]
-    public static async Task<string> WorkflowDataRoundtrip(
-        RevitConnectionManager revit,
-        [Description("Path to the .xlsx file (created on export, read on import)")] string filePath,
-        [Description("Categories to include (e.g. Walls, Doors)")] string[]? categories = null,
-        [Description("Parameter names to include")] string[]? parameterNames = null,
-        [Description("Include type-level parameters. Default: false")] bool? includeTypeParameters = null,
-        CancellationToken ct = default)
-    {
-        var p = new JObject { ["filePath"] = filePath };
-        if (categories != null) p["categories"] = new JArray(categories);
-        if (parameterNames != null) p["parameterNames"] = new JArray(parameterNames);
-        if (includeTypeParameters != null) p["includeTypeParameters"] = includeTypeParameters;
-        var result = await revit.ExecuteAsync("workflow_data_roundtrip", p, ct);
-        return result.ToString();
-    }
-
-    [McpServerTool(Name = "workflow_room_documentation"), Description("Auto-generate callout views (and optionally sections) for every room on a level.")]
-    public static async Task<string> WorkflowRoomDocumentation(
-        RevitConnectionManager revit,
-        [Description("Level name to document")] string levelName,
-        [Description("Also create sections per room. Default: true")] bool? createSections = null,
-        [Description("Boundary offset in mm. Default: 300")] double? offset = null,
-        CancellationToken ct = default)
-    {
-        var p = new JObject { ["levelName"] = levelName };
-        if (createSections != null) p["createSections"] = createSections;
-        if (offset != null) p["offset"] = offset;
-        var result = await revit.ExecuteAsync("workflow_room_documentation", p, ct);
-        return result.ToString();
-    }
-
-    [McpServerTool(Name = "workflow_sheet_set"), Description("Auto-create a set of sheets with title blocks from a definition list: [{number, name, viewIds?}].")]
-    public static async Task<string> WorkflowSheetSet(
-        RevitConnectionManager revit,
-        [Description("JSON array of sheet specs: [{number, name, viewIds?}]")] string sheets,
-        [Description("Default title block family-type name")] string? titleBlockName = null,
-        CancellationToken ct = default)
-    {
-        var p = new JObject { ["sheets"] = JArray.Parse(sheets) };
-        if (titleBlockName != null) p["titleBlockName"] = titleBlockName;
-        var result = await revit.ExecuteAsync("workflow_sheet_set", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_shared_parameters"), Description("List all project parameters with their bindings and categories, optionally filtered by category.")]
     public static async Task<string> GetSharedParameters(
         RevitConnectionManager revit,
         [Description("Category filter (e.g. OST_Walls); empty for all")] string? categoryFilter = null,
-        [Description("Strip per-parameter description. Default: false")] bool compact = false,
+        [Description("Strip per-parameter description. Default: true")] bool compact = true,
         CancellationToken ct = default)
     {
         var p = new JObject();
         if (categoryFilter != null) p["categoryFilter"] = categoryFilter;
         var result = await revit.ExecuteAsync("get_shared_parameters", p, ct);
-        return ToolResponseShaper.Shape("get_shared_parameters", result, compact, summaryOnly: false).ToString();
+        return ToolResponseShaper.Shape("get_shared_parameters", result, compact, summaryOnly: false).ToLean();
     }
 
     [McpServerTool(Name = "lines_per_view_count"), Description("Count detail lines per view (single document pass, safe on any model size) plus a project-wide model line count. Model lines have no owner view, so they are reported once at project level, not per view.")]
@@ -537,7 +455,7 @@ public static class ProjectTools
         if (limit != null) p["limit"] = limit;
         if (timeBudgetMs != null) p["timeBudgetMs"] = timeBudgetMs;
         var result = await revit.ExecuteAsync("lines_per_view_count", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "list_family_sizes"), Description("List loaded families with type/instance counts and, when includeSize=true, the family file size in KB measured by exporting each family to a temp file. Disabled by default because exporting is slow on models with many families.")]
@@ -555,7 +473,7 @@ public static class ProjectTools
         if (categories != null) p["categories"] = new JArray(categories);
         if (includeSize != null) p["includeSize"] = includeSize;
         var result = await revit.ExecuteAsync("list_family_sizes", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "list_schedulable_fields"), Description("Discover available schedulable fields for a category.")]
@@ -563,7 +481,7 @@ public static class ProjectTools
         RevitConnectionManager revit,
         [Description("Category name (e.g. OST_Rooms). Default: OST_Rooms")] string? categoryName = null,
         [Description("Schedule type: regular | key_schedule | material_takeoff (aliases: key, material-takeoff). Default: regular")] string? scheduleType = null,
-        [Description("Return a compact payload. Default: false")] bool compact = false,
+        [Description("Return a compact payload. Default: true")] bool compact = true,
         [Description("Return names/counts only. Default: false")] bool summaryOnly = false,
         CancellationToken ct = default)
     {
@@ -571,7 +489,7 @@ public static class ProjectTools
         if (categoryName != null) p["categoryName"] = categoryName;
         if (scheduleType != null) p["scheduleType"] = scheduleType;
         var result = await revit.ExecuteAsync("list_schedulable_fields", p, ct);
-        return ToolResponseShaper.Shape("list_schedulable_fields", result, compact, summaryOnly).ToString();
+        return ToolResponseShaper.Shape("list_schedulable_fields", result, compact, summaryOnly).ToLean();
     }
 
     [McpServerTool(Name = "manage_project_units"), Description("Get or set project units (length, area, volume, angle, etc.). Actions: get, set, list_valid_units.")]
@@ -588,7 +506,7 @@ public static class ProjectTools
         if (unit     != null) p["unit"]     = unit;
         if (accuracy != null) p["accuracy"] = accuracy;
         var result = await revit.ExecuteAsync("manage_project_units", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "manage_additional_settings"), Description("Manage Additional Settings (Manage tab): line styles, line weights, line patterns, fill patterns, halftone/underlay.")]
@@ -615,6 +533,6 @@ public static class ProjectTools
         if (halftonePercent    != null) p["halftonePercent"]    = halftonePercent;
         if (underlayBrightness != null) p["underlayBrightness"] = underlayBrightness;
         var result = await revit.ExecuteAsync("manage_additional_settings", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 }

@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using RevitFlux.Plugin.Updates;
 using System;
 using System.IO;
 using System.Reflection;
@@ -18,7 +17,6 @@ public partial class GeneralSettingsPage : Page
     private const string DefaultLogLevel = "Info";
     private DispatcherTimer? _saveFeedbackTimer;
     private int _originalPort;
-    private DispatcherTimer? _downloadTimer;
 
     private static string SettingsFilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
@@ -30,12 +28,6 @@ public partial class GeneralSettingsPage : Page
         LoadSettings();
         LoadVersionInfo();
         RefreshConnectionStatus();
-        RefreshUpdateBanner();
-        // The update check runs once at plugin startup on a background thread;
-        // when the user opens Settings it may or may not have completed yet.
-        // Re-check every second for ~10 s to catch the late reply, then stop.
-        StartUpdateBannerPolling();
-
         // Subscribe to real-time server state changes so the status banner
         // updates immediately when the user clicks RevitFlux Switch.
         if (RevitFluxApp.Instance != null)
@@ -53,201 +45,6 @@ public partial class GeneralSettingsPage : Page
         // The event may fire from the Revit main thread or a background thread.
         // Dispatcher.Invoke ensures we update WPF controls on the UI thread.
         Dispatcher.Invoke(RefreshConnectionStatus);
-    }
-
-    private void RefreshUpdateBanner()
-    {
-        var info = UpdateChecker.Latest;
-        if (info?.HasUpdate != true)
-        {
-            UpdateBanner.Visibility = Visibility.Collapsed;
-            StopDownloadTimer();
-            return;
-        }
-
-        UpdateBanner.Visibility = Visibility.Visible;
-
-        switch (UpdateChecker.State)
-        {
-            case UpdateChecker.DownloadState.Idle:
-                UpdateTitle.Text = $"RevitFlux {info.RemoteVersion} disponibile";
-                UpdateDetail.Text = $"Sei sulla {UpdateChecker.CurrentVersion} — {info.Changelog}";
-                UpdateProgressGrid.Visibility = Visibility.Collapsed;
-                SetActionButton("Download & Install", "#FFB300", "#FF8F00", isEnabled: true);
-                UpdateManualButton.Visibility = Visibility.Collapsed;
-                StopDownloadTimer();
-                break;
-
-            case UpdateChecker.DownloadState.Downloading:
-                var (recv, total) = UpdateChecker.DownloadProgress;
-                string progress = total > 0
-                    ? $"{recv / 1_048_576.0:F0} / {total / 1_048_576.0:F0} MB"
-                    : $"{recv / 1_048_576.0:F0} MB scaricati…";
-                double pct = total > 0 ? recv * 100.0 / total : 0;
-                UpdateTitle.Text = $"Download in corso… {progress}";
-                UpdateDetail.Text = string.Empty;
-                UpdateProgress.Value = pct;
-                UpdateProgressText.Text = progress;
-                UpdateProgressGrid.Visibility = Visibility.Visible;
-                SetActionButton("Annulla", "#9E9E9E", "#757575", isEnabled: true);
-                UpdateManualButton.Visibility = Visibility.Collapsed;
-                StartDownloadTimer();
-                break;
-
-            case UpdateChecker.DownloadState.Ready:
-                UpdateTitle.Text = "Pronto per l'installazione";
-                UpdateDetail.Text = "⚠ Revit verrà chiuso automaticamente — salva il lavoro prima di continuare.";
-                UpdateProgressGrid.Visibility = Visibility.Collapsed;
-                SetActionButton("Installa e chiudi Revit", "#388E3C", "#2E7D32", isEnabled: true);
-                UpdateManualButton.Visibility = Visibility.Collapsed;
-                StopDownloadTimer();
-                break;
-
-            case UpdateChecker.DownloadState.Installing:
-                UpdateTitle.Text = "Installazione avviata — chiusura in corso…";
-                UpdateDetail.Text = "Riavvia Revit al termine dell'installazione.";
-                UpdateProgressGrid.Visibility = Visibility.Collapsed;
-                SetActionButton("Installa e chiudi Revit", "#00796B", "#004D40", isEnabled: false);
-                UpdateManualButton.Visibility = Visibility.Collapsed;
-                StopDownloadTimer();
-                break;
-
-            case UpdateChecker.DownloadState.Done:
-                UpdateBanner.Visibility = Visibility.Collapsed;
-                StopDownloadTimer();
-                break;
-
-            case UpdateChecker.DownloadState.Error:
-                UpdateTitle.Text = "Download fallito";
-                UpdateDetail.Text = UpdateChecker.DownloadError ?? "Errore sconosciuto";
-                UpdateProgressGrid.Visibility = Visibility.Collapsed;
-                SetActionButton("Riprova", "#E53935", "#B71C1C", isEnabled: true);
-                UpdateManualButton.Visibility = Visibility.Visible;
-                StopDownloadTimer();
-                break;
-        }
-    }
-
-    private void SetActionButton(string label, string bg, string border, bool isEnabled)
-    {
-        UpdateActionButton.Content = label;
-        UpdateActionButton.Background = new SolidColorBrush(
-            (Color)ColorConverter.ConvertFromString(bg));
-        UpdateActionButton.BorderBrush = new SolidColorBrush(
-            (Color)ColorConverter.ConvertFromString(border));
-        UpdateActionButton.IsEnabled = isEnabled;
-    }
-
-    private void StartDownloadTimer()
-    {
-        if (_downloadTimer?.IsEnabled == true) return;
-        StopDownloadTimer(); // stop and null the old one before creating a new one
-        _downloadTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
-        _downloadTimer.Tick += (_, _) => RefreshUpdateBanner();
-        _downloadTimer.Start();
-    }
-
-    private void StopDownloadTimer()
-    {
-        _downloadTimer?.Stop();
-        _downloadTimer = null;
-    }
-
-    private void StartUpdateBannerPolling()
-    {
-        if (UpdateChecker.Latest != null) return; // check already completed
-
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-        int ticks = 0;
-        timer.Tick += (_, _) =>
-        {
-            ticks++;
-            if (UpdateChecker.Latest != null || ticks >= 10)
-            {
-                timer.Stop();
-                RefreshUpdateBanner();
-            }
-        };
-        timer.Start();
-    }
-
-    private void UpdateAction_Click(object sender, RoutedEventArgs e)
-    {
-        switch (UpdateChecker.State)
-        {
-            case UpdateChecker.DownloadState.Idle:
-            case UpdateChecker.DownloadState.Error:
-                UpdateChecker.ResetDownload();
-                UpdateChecker.StartDownloadAsync();
-                RefreshUpdateBanner();
-                break;
-
-            case UpdateChecker.DownloadState.Downloading:
-                UpdateChecker.CancelDownload();
-                RefreshUpdateBanner();
-                break;
-
-            case UpdateChecker.DownloadState.Ready:
-                // H1: do not close Revit unless the installer actually started.
-                if (!UpdateChecker.LaunchInstaller())
-                {
-                    RefreshUpdateBanner();
-                    break;
-                }
-                RefreshUpdateBanner();
-                // Close Revit after a short delay so the installer process has
-                // time to start and enter its Assert-RevitClosed loop before
-                // Revit exits. Without this the DLLs are locked and the install fails.
-                var closeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1.5) };
-                closeTimer.Tick += (_, _) =>
-                {
-                    closeTimer.Stop();
-                    try { System.Windows.Application.Current?.Shutdown(); } catch { }
-                };
-                closeTimer.Start();
-                break;
-
-            case UpdateChecker.DownloadState.Installing:
-                // Button is disabled in this state — unreachable in practice.
-                break;
-
-            case UpdateChecker.DownloadState.Done:
-                // Banner is hidden in this state; click is unreachable.
-                break;
-
-            default:
-                break; // Guard against future enum additions.
-        }
-    }
-
-    private void UpdateManual_Click(object sender, RoutedEventArgs e)
-    {
-        var info = UpdateChecker.Latest;
-        if (info == null || string.IsNullOrWhiteSpace(info.DownloadUrl)) return;
-
-        // H38: never shell-execute an unvalidated URL. UseShellExecute dispatches by
-        // scheme, so a non-https FileName (file://, ms-msdt:, UNC path) that slipped
-        // through would run as the user. Gate on the same HTTPS + host allowlist used
-        // for the elevated installer path.
-        if (!UpdateChecker.IsTrustedDownloadUrl(info.DownloadUrl))
-        {
-            TaskDialog.Show("RevitFlux",
-                Localization.T("update.open_browser_failed", info.DownloadUrl));
-            return;
-        }
-        try
-        {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = info.DownloadUrl,
-                UseShellExecute = true,
-            });
-        }
-        catch (Exception ex)
-        {
-            TaskDialog.Show("RevitFlux",
-                Localization.T("update.open_browser_failed", ex.Message));
-        }
     }
 
     private void RefreshConnectionStatus()

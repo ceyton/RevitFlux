@@ -17,7 +17,7 @@ public static class CreationTools
     {
         var p = new JObject { ["data"] = JArray.Parse(specs) };
         var result = await revit.ExecuteAsync("create_surface_based_element", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_line_based_element"), Description("Create line-based elements (walls, beams). Pass a JSON array of specs: [{category, locationLine:{p0:{x,y,z}, p1:{x,y,z}, pMid?:{x,y,z}}, typeId?, height?, baseLevel?, baseOffset?}]. Add pMid to make a curved (arc) wall/beam. Coordinates in mm.")]
@@ -28,7 +28,7 @@ public static class CreationTools
     {
         var p = new JObject { ["data"] = JArray.Parse(specs) };
         var result = await revit.ExecuteAsync("create_line_based_element", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_point_based_element"), Description("Create point-based elements (columns, furniture). Pass a JSON array of creation specs: [{category, location:{x,y,z}, typeName, levelId|levelName, rotation?, ...}].")]
@@ -39,7 +39,7 @@ public static class CreationTools
     {
         var p = new JObject { ["data"] = JArray.Parse(specs) };
         var result = await revit.ExecuteAsync("create_point_based_element", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_floor"), Description("Create an architectural floor from a boundary (or a room), optionally with holes. Provide boundaryPoints OR roomId.")]
@@ -59,7 +59,7 @@ public static class CreationTools
         if (levelElevation != null) p["levelElevation"] = levelElevation;
         if (holes != null) p["holes"] = JArray.Parse(holes);
         var result = await revit.ExecuteAsync("create_floor", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "change_element_type"), Description("Change the type of one or more elements to a target type specified by ID or name.")]
@@ -77,7 +77,7 @@ public static class CreationTools
         if (targetTypeId != null) p["targetTypeId"] = targetTypeId;
         if (targetTypeName != null) p["targetTypeName"] = targetTypeName;
         var result = await revit.ExecuteAsync("change_element_type", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_grid"), Description("Create a grid system (X and/or Y grids by count + spacing), or rename/delete an existing grid. action=create|rename|delete. Spacing/extent values are in mm.")]
@@ -107,7 +107,7 @@ public static class CreationTools
         if (name != null) p["name"] = name;
         if (newName != null) p["newName"] = newName;
         var result = await revit.ExecuteAsync("create_grid", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_dimensions"), Description("Create dimension annotations in the active view. Pass a JSON array of dimension specs. Element mode: [{viewId, referenceIds:[...], linePoint:{x,y,z}, dimensionStyleId?}]. Point-to-point mode: [{viewId, startPoint:{x,y,z}, endPoint:{x,y,z}, linePoint?, dimensionStyleId?}]. dimensionStyleId is honored in both modes.")]
@@ -118,7 +118,7 @@ public static class CreationTools
     {
         var p = new JObject { ["dimensions"] = JArray.Parse(dimensions) };
         var result = await revit.ExecuteAsync("create_dimensions", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "color_elements"), Description("Color the active view's elements of a category by grouping them on a parameter value, or reset (clear) those color overrides. action=color|reset. Operates on the ACTIVE model view (not a sheet).")]
@@ -137,7 +137,7 @@ public static class CreationTools
         if (useGradient != null) p["useGradient"] = useGradient;
         if (customColors != null) p["customColors"] = JArray.Parse(customColors);
         var result = await revit.ExecuteAsync("color_elements", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "export_to_excel"), Description("Export element data from a Revit category to an Excel file.")]
@@ -165,20 +165,20 @@ public static class CreationTools
         if (sheetName != null) p["sheetName"] = sheetName;
         if (maxElements != null) p["maxElements"] = maxElements;
         var result = await revit.ExecuteAsync("export_to_excel", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "export_room_data"), Description("Export room data including area, perimeter, level, and bounding elements.")]
     public static async Task<string> ExportRoomData(
         RevitConnectionManager revit,
         [Description("Maximum number of rooms to return. Default: 20")] int? maxResults = 20,
-        [Description("Strip department/perimeterMm. Default: false")] bool compact = false,
+        [Description("Strip department/perimeterMm. Default: true")] bool compact = true,
         CancellationToken ct = default)
     {
         var p = new JObject();
         if (maxResults != null) p["maxResults"] = maxResults;
         var result = await revit.ExecuteAsync("export_room_data", p, ct);
-        return ToolResponseShaper.Shape("export_room_data", result, compact, summaryOnly: false).ToString();
+        return ToolResponseShaper.Shape("export_room_data", result, compact, summaryOnly: false).ToLean();
     }
 
     [McpServerTool(Name = "create_array"), Description("Create a linear or radial array. Default builds a real associative Revit ArrayElement (editable count); set associative=false for loose copies. linear uses spacingX/Y/Z (mm); radial uses centerX/Y (mm) and totalAngle.")]
@@ -210,7 +210,7 @@ public static class CreationTools
         if (totalAngle != null) p["totalAngle"] = totalAngle;
         if (associative != null) p["associative"] = associative;
         var result = await revit.ExecuteAsync("create_array", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_color_legend"), Description("Color elements by parameter value and optionally create a legend view.")]
@@ -233,7 +233,7 @@ public static class CreationTools
         if (legendTitle != null) p["legendTitle"] = legendTitle;
         if (targetViewId != null) p["targetViewId"] = targetViewId;
         var result = await revit.ExecuteAsync("create_color_legend", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_filled_region"), Description("Create a filled region in a view from a closed boundary, optionally with holes (inner loops).")]
@@ -250,7 +250,7 @@ public static class CreationTools
         if (filledRegionTypeName != null) p["filledRegionTypeName"] = filledRegionTypeName;
         if (holes != null) p["holes"] = JArray.Parse(holes);
         var result = await revit.ExecuteAsync("create_filled_region", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_filled_regions"), Description("Create many filled regions in one view in a single transaction (one undo step). Prefer this over repeated create_filled_region calls. All-or-nothing unless continueOnError is true.")]
@@ -269,7 +269,7 @@ public static class CreationTools
         if (continueOnError != null) p["continueOnError"] = continueOnError;
         if (dryRun != null) p["dryRun"] = dryRun;
         var result = await revit.ExecuteAsync("create_filled_regions", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_structural_framing_system"), Description("Create a beam system on a level over a rectangular area. Default builds a real associative Revit BeamSystem (editable layout); set associative=false for loose independent beams.")]
@@ -296,7 +296,7 @@ public static class CreationTools
         if (elevation != null) p["elevation"] = elevation;
         if (associative != null) p["associative"] = associative;
         var result = await revit.ExecuteAsync("create_structural_framing_system", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_text_note"), Description("Create text notes in a view. Pass a JSON array: [{text, position:{x,y,z}, viewId?, textNoteTypeId?, width?, horizontalAlignment?, verticalAlignment?, rotation?, leader?}]. rotation is degrees; leader is left|right|leftArc|rightArc.")]
@@ -307,7 +307,7 @@ public static class CreationTools
     {
         var p = new JObject { ["textNotes"] = JArray.Parse(textNotes) };
         var result = await revit.ExecuteAsync("create_text_note", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_revision"), Description("List, create, update, or assign revisions to sheets. action=list|create|set|add_to_sheets. 'set' updates an existing revision (needs revisionId).")]
@@ -335,7 +335,7 @@ public static class CreationTools
         if (sheetIds != null) p["sheetIds"] = new JArray(sheetIds.Cast<object>().ToArray());
         if (revisionId != null) p["revisionId"] = revisionId;
         var result = await revit.ExecuteAsync("create_revision", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "import_from_excel"), Description("Import parameter values from an Excel file into Revit elements.")]
@@ -350,7 +350,7 @@ public static class CreationTools
         if (sheetName != null) p["sheetName"] = sheetName;
         if (dryRun != null) p["dryRun"] = dryRun;
         var result = await revit.ExecuteAsync("import_from_excel", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "export_elements_data"), Description("Export element data by category as JSON or CSV. Supports parameter filtering and an optional parameter-based include filter.")]
@@ -378,7 +378,7 @@ public static class CreationTools
         if (filterValue != null) p["filterValue"] = filterValue;
         if (filterOperator != null) p["filterOperator"] = filterOperator;
         var result = await revit.ExecuteAsync("export_elements_data", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "export_families"), Description("Export loaded families as .rfa files into a target directory.")]
@@ -395,7 +395,7 @@ public static class CreationTools
         if (groupByCategory != null) p["groupByCategory"] = groupByCategory;
         if (overwrite != null) p["overwrite"] = overwrite;
         var result = await revit.ExecuteAsync("export_families", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "export_schedule"), Description("Export schedule to CSV/TSV or JSON")]
@@ -408,7 +408,7 @@ public static class CreationTools
         var p = new JObject { ["scheduleId"] = scheduleId };
         if (format != null) p["format"] = format;
         var result = await revit.ExecuteAsync("export_schedule", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "batch_export"), Description("Export views/sheets to DWG, DXF, DGN, PDF, or image (PNG) formats.")]
@@ -425,7 +425,7 @@ public static class CreationTools
         if (sheetIds != null) p["sheetIds"] = new JArray(sheetIds.Cast<object>().ToArray());
         if (viewIds != null) p["viewIds"] = new JArray(viewIds.Cast<object>().ToArray());
         var result = await revit.ExecuteAsync("batch_export", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "import_table"), Description("Import a CSV/TSV file as a formatted table in a drafting or legend view.")]
@@ -446,6 +446,6 @@ public static class CreationTools
         if (textSize != null) p["textSize"] = textSize;
         if (includeHeaders != null) p["includeHeaders"] = includeHeaders;
         var result = await revit.ExecuteAsync("import_table", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 }

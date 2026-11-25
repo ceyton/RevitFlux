@@ -56,6 +56,7 @@ public class ToolCatalogParitySourceTests
         Assert.NotEmpty(pluginNames);
 
         var missing = mcpNames
+            .Where(name => name is not ("find_tools" or "run_tool")) // server-side only
             .Where(name => !pluginNames.Contains(name))
             .OrderBy(name => name)
             .ToList();

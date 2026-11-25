@@ -12,7 +12,7 @@ public static class MetaTools
     public static async Task<string> SayHello(RevitConnectionManager revit, CancellationToken ct)
     {
         var result = await revit.ExecuteAsync("say_hello", new JObject(), ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_project_info"), Description("Get project name, address, levels, phases, worksets, and links from the active Revit document.")]
@@ -32,7 +32,7 @@ public static class MetaTools
             ["includeLinks"] = includeLinks,
         };
         var result = await revit.ExecuteAsync("get_project_info", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "set_project_info"), Description("Set editable Project Information fields. Only the fields you pass are changed; others are left untouched.")]
@@ -62,20 +62,6 @@ public static class MetaTools
         if (status != null) p["status"] = status;
         if (clientName != null) p["clientName"] = clientName;
         var result = await revit.ExecuteAsync("set_project_info", p, ct);
-        return result.ToString();
-    }
-
-    [McpServerTool(Name = "get_cache_stats"), Description("Return diagnostic hit/miss telemetry from the plugin-side tool-result cache.")]
-    public static async Task<string> GetCacheStats(RevitConnectionManager revit, CancellationToken ct = default)
-    {
-        var result = await revit.ExecuteAsync("get_cache_stats", new JObject(), ct);
-        return result.ToString();
-    }
-
-    [McpServerTool(Name = "clear_cache"), Description("Clear every entry from the plugin-side tool-result cache.")]
-    public static async Task<string> ClearCache(RevitConnectionManager revit, CancellationToken ct = default)
-    {
-        var result = await revit.ExecuteAsync("clear_cache", new JObject(), ct);
-        return result.ToString();
+        return result.ToLean();
     }
 }

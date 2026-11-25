@@ -24,13 +24,7 @@ public class PathSafetySourceTests
     [Theory]
     // Already hardened in earlier waves — keep them locked.
     [InlineData("Annotations", "ImportTableTool.cs")]
-    [InlineData("Workflows", "WorkflowDataRoundtripTool.cs")]
-    [InlineData("IFC", "IfcValidateRequestTool.cs")]
     // IFC export/import/mapping (strict: user-owned directories only).
-    [InlineData("IFC", "IfcExportBasicTool.cs")]
-    [InlineData("IFC", "IfcExportWithConfigurationTool.cs")]
-    [InlineData("IFC", "IfcSetFamilyMappingFileTool.cs")]
-    [InlineData("IFC", "IfcOpenOrImportTool.cs")]
     // Excel / families / project exports (strict).
     [InlineData("Elements", "ExportToExcelTool.cs")]
     [InlineData("Elements", "ExportFamiliesTool.cs")]
@@ -38,8 +32,6 @@ public class PathSafetySourceTests
     [InlineData("Project", "BatchExportTool.cs")]
     [InlineData("Project", "ExportSharedParameterFileTool.cs")]
     // Link tools (UNC allowed).
-    [InlineData("IFC", "IfcLinkTool.cs")]
-    [InlineData("IFC", "IfcReloadLinkTool.cs")]
     [InlineData("LinkedFiles", "AddLinkedFileTool.cs")]
     [InlineData("LinkedFiles", "ReloadLinkedFileFromTool.cs")]
     public void PathAcceptingTool_CallsPathSafety(string folder, string file)
@@ -49,8 +41,6 @@ public class PathSafetySourceTests
     }
 
     [Theory]
-    [InlineData("IFC", "IfcLinkTool.cs")]
-    [InlineData("IFC", "IfcReloadLinkTool.cs")]
     [InlineData("LinkedFiles", "AddLinkedFileTool.cs")]
     [InlineData("LinkedFiles", "ReloadLinkedFileFromTool.cs")]
     public void LinkTool_AllowsNetworkPaths(string folder, string file)
@@ -60,8 +50,6 @@ public class PathSafetySourceTests
     }
 
     [Theory]
-    [InlineData("IFC", "IfcExportBasicTool.cs")]
-    [InlineData("IFC", "IfcExportWithConfigurationTool.cs")]
     [InlineData("Elements", "ExportToExcelTool.cs")]
     [InlineData("Elements", "ExportFamiliesTool.cs")]
     [InlineData("Project", "BatchExportTool.cs")]

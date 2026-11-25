@@ -45,7 +45,7 @@ public static class ViewTools
         if (cropMin != null) p["cropMin"] = JObject.Parse(cropMin);
         if (cropMax != null) p["cropMax"] = JObject.Parse(cropMax);
         var result = await revit.ExecuteAsync("create_view", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "duplicate_view"), Description("Duplicate an existing view in Revit.")]
@@ -58,7 +58,7 @@ public static class ViewTools
         var p = new JObject { ["viewIds"] = new JArray(viewId) };
         if (duplicateOption != null) p["duplicateOption"] = duplicateOption;
         var result = await revit.ExecuteAsync("duplicate_view", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_current_view_info"), Description("Get information about the currently active view in Revit.")]
@@ -67,7 +67,7 @@ public static class ViewTools
         CancellationToken ct = default)
     {
         var result = await revit.ExecuteAsync("get_current_view_info", new JObject(), ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_current_view_elements"), Description("List elements visible in the currently active view.")]
@@ -88,7 +88,7 @@ public static class ViewTools
         if (categoryFilter != null) p["categoryFilter"] = categoryFilter;
         if (fields != null) p["fields"] = new JArray(fields);
         var result = await revit.ExecuteAsync("get_current_view_elements", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_view_filter"), Description("Create, apply, or list parameter-based view filters. action=create|apply|list. A filter carries one rule (parameterName/filterRule/filterValue) or several via the rules array combined with AND/OR (logic). For apply: filterId+viewId, optional overrideR/G/B.")]
@@ -124,7 +124,7 @@ public static class ViewTools
         if (overrideG != null) p["overrideG"] = overrideG;
         if (overrideB != null) p["overrideB"] = overrideB;
         var result = await revit.ExecuteAsync("create_view_filter", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "override_graphics"), Description("Override element graphics in a view (colors, transparency, halftone, line weight).")]
@@ -151,7 +151,7 @@ public static class ViewTools
         if (isHalftone != null) p["isHalftone"] = isHalftone;
         if (projectionLineWeight != null) p["projectionLineWeight"] = projectionLineWeight;
         var result = await revit.ExecuteAsync("override_graphics", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_sheet"), Description("Create a new sheet in the Revit project.")]
@@ -169,7 +169,7 @@ public static class ViewTools
         };
         if (titleBlockId != null) p["titleBlockId"] = titleBlockId;
         var result = await revit.ExecuteAsync("create_sheet", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "place_viewport"), Description("Place a view on a sheet as a viewport, with optional rotation and viewport type.")]
@@ -193,7 +193,7 @@ public static class ViewTools
         if (rotation != null) p["rotation"] = rotation;
         if (viewportTypeId != null) p["viewportTypeId"] = viewportTypeId;
         var result = await revit.ExecuteAsync("place_viewport", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_schedule"), Description("Create a new schedule view in Revit.")]
@@ -213,7 +213,7 @@ public static class ViewTools
         if (fields != null) p["fields"] = new JArray(fields);
         if (scheduleType != null) p["scheduleType"] = scheduleType;
         var result = await revit.ExecuteAsync("create_schedule", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "get_schedule_data"), Description("Export schedule data as JSON from an existing schedule view.")]
@@ -226,7 +226,7 @@ public static class ViewTools
         var p = new JObject { ["scheduleId"] = scheduleId };
         if (maxRows != null) p["maxRows"] = maxRows;
         var result = await revit.ExecuteAsync("get_schedule_data", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_preset_schedule"), Description("Create a schedule from a predefined template (e.g. RoomFinish, DoorHardware, WallQuantities, WindowSchedule).")]
@@ -239,7 +239,7 @@ public static class ViewTools
         var p = new JObject { ["preset"] = preset };
         if (name != null) p["name"] = name;
         var result = await revit.ExecuteAsync("create_preset_schedule", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "rename_views"), Description("Batch rename views using find/replace, prefix, or suffix operations.")]
@@ -258,7 +258,7 @@ public static class ViewTools
         if (findText != null) p["findText"] = findText;
         if (replaceText != null) p["replaceText"] = replaceText;
         var result = await revit.ExecuteAsync("rename_views", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     // ── Viewport & View Template tools ──────────────────────────────────
@@ -278,7 +278,7 @@ public static class ViewTools
         };
         if (alignMode != null) p["alignMode"] = alignMode;
         var result = await revit.ExecuteAsync("align_viewports", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "apply_view_template"), Description("List, apply, or remove view templates from views. action=list|apply|remove.")]
@@ -296,7 +296,7 @@ public static class ViewTools
         if (templateId != null) p["templateId"] = templateId;
         if (templateName != null) p["templateName"] = templateName;
         var result = await revit.ExecuteAsync("apply_view_template", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "batch_modify_view_range"), Description("Modify view range offsets (top, cut plane, bottom, view depth) for multiple views. Offsets are in mm.")]
@@ -315,7 +315,7 @@ public static class ViewTools
         if (bottomOffset != null) p["bottomOffset"] = bottomOffset;
         if (viewDepthOffset != null) p["viewDepthOffset"] = viewDepthOffset;
         var result = await revit.ExecuteAsync("batch_modify_view_range", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_views_from_rooms"), Description("Create callout, section, or elevation views from rooms with a naming pattern.")]
@@ -334,7 +334,7 @@ public static class ViewTools
         if (scale != null) p["scale"] = scale;
         if (namingPattern != null) p["namingPattern"] = namingPattern;
         var result = await revit.ExecuteAsync("create_views_from_rooms", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "manage_unplaced_views"), Description("List or delete views that are not placed on any sheet")]
@@ -345,7 +345,7 @@ public static class ViewTools
     {
         var p = new JObject { ["action"] = action };
         var result = await revit.ExecuteAsync("manage_unplaced_views", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "manage_view_templates"), Description("List, duplicate, delete, or rename view templates. action=list|duplicate|delete|rename.")]
@@ -365,7 +365,7 @@ public static class ViewTools
         if (templateId != null) p["templateId"] = templateId;
         if (newName != null) p["newName"] = newName;
         var result = await revit.ExecuteAsync("manage_view_templates", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     // ── Sheet tools ─────────────────────────────────────────────────────
@@ -380,7 +380,7 @@ public static class ViewTools
         var p = new JObject { ["sheets"] = JArray.Parse(sheets) };
         if (defaultTitleBlockName != null) p["defaultTitleBlockName"] = defaultTitleBlockName;
         var result = await revit.ExecuteAsync("batch_create_sheets", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "create_placeholder_sheets"), Description("Create, list, convert, or delete placeholder sheets. action=create|list|convert|delete.")]
@@ -398,7 +398,7 @@ public static class ViewTools
         if (sheetIds != null) p["sheetIds"] = new JArray(sheetIds.Cast<object>().ToArray());
         if (titleBlockId != null) p["titleBlockId"] = titleBlockId;
         var result = await revit.ExecuteAsync("create_placeholder_sheets", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "duplicate_sheet_with_content"), Description("Duplicate a sheet including annotations and detail items")]
@@ -427,7 +427,7 @@ public static class ViewTools
         if (sheetNumberPrefix != null) p["sheetNumberPrefix"] = sheetNumberPrefix;
         if (sheetNumberSuffix != null) p["sheetNumberSuffix"] = sheetNumberSuffix;
         var result = await revit.ExecuteAsync("duplicate_sheet_with_content", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "duplicate_sheet_with_views"), Description("Duplicate a sheet N times with configurable view duplication options.")]
@@ -450,7 +450,7 @@ public static class ViewTools
         if (newSheetNumberPrefix != null) p["newSheetNumberPrefix"] = newSheetNumberPrefix;
         if (viewDuplicateOption != null) p["viewDuplicateOption"] = viewDuplicateOption;
         var result = await revit.ExecuteAsync("duplicate_sheet_with_views", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     // ── Schedule tools ──────────────────────────────────────────────────
@@ -466,7 +466,7 @@ public static class ViewTools
         if (scheduleId != null) p["scheduleId"] = scheduleId;
         if (scheduleName != null) p["scheduleName"] = scheduleName;
         var result = await revit.ExecuteAsync("delete_schedule", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 
     [McpServerTool(Name = "duplicate_schedule"), Description("Duplicate a schedule with a new name")]
@@ -478,6 +478,6 @@ public static class ViewTools
     {
         var p = new JObject { ["scheduleId"] = scheduleId, ["newName"] = newName };
         var result = await revit.ExecuteAsync("duplicate_schedule", p, ct);
-        return result.ToString();
+        return result.ToLean();
     }
 }

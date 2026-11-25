@@ -37,14 +37,9 @@ public static class ToolResponseShaper
             "audit_families" => ShapeAuditFamilies(payload),
             "get_shared_parameters" => ShapeSharedParameters(payload),
             "get_linked_file_instances" => ShapeLinkedFileInstances(payload),
-            "get_coordination_models" => ShapeCoordinationModels(payload),
             "get_elements_in_spatial_volume" => ShapeElementsInSpatialVolume(payload),
             "get_materials" => ShapeMaterials(payload),
             "export_room_data" => ShapeExportRoomData(payload),
-            "ifc_list_export_configurations" => ShapeIfcExportConfigurations(payload),
-            "ifc_analyze_rebuildability" => ShapeIfcAnalyzeRebuildability(payload),
-            "ifc_list_rebuild_candidates" => ShapeIfcListRebuildCandidates(payload),
-            "workflow_model_audit" => ShapeWorkflowModelAudit(payload),
             _ => payload
         };
     }
@@ -283,35 +278,6 @@ public static class ToolResponseShaper
     /// drops verbose per-model fields (pathType, path) and per-instance fields (name, origin); preserves typeId,
     /// instanceCount, instanceId so the caller can still drill down.
     /// </summary>
-    private static JToken ShapeCoordinationModels(JToken payload)
-    {
-        if (payload is not JObject obj) return payload;
-        var result = (JObject)obj.DeepClone();
-        if (result["models"] is not JArray models) return result;
-
-        var trimmed = models.Children<JObject>().Select(model =>
-        {
-            var slim = new JObject
-            {
-                ["typeId"] = model["typeId"],
-                ["typeName"] = model["typeName"],
-                ["isCloud"] = model["isCloud"],
-                ["instanceCount"] = model["instanceCount"]
-            };
-            if (model["instances"] is JArray instances)
-            {
-                slim["instances"] = new JArray(instances.Children<JObject>().Select(inst => new JObject
-                {
-                    ["instanceId"] = inst["instanceId"]
-                }));
-            }
-            return slim;
-        }).ToArray();
-
-        result["models"] = new JArray(trimmed);
-        return result;
-    }
-
     /// <summary>
     /// get_linked_elements → keeps link wrappers; preserves ALL custom parameter fields per element.
     /// IMPORTANT: caller can request parameterNames=[...] which materialize as dynamic top-level
@@ -370,64 +336,11 @@ public static class ToolResponseShaper
                           "hasAppearanceAsset", "hasStructuralAsset", "hasThermalAsset" });
     }
 
-/// <summary>export_room_data → keeps room essentials, drops department/perimeter.</summary>
+    /// <summary>export_room_data → keeps room essentials, drops department/perimeter.</summary>
     private static JToken ShapeExportRoomData(JToken payload)
     {
         return StripFromArrayProperty(payload, "rooms",
             keep: new[] { "id", "name", "number", "level", "areaSqM", "volumeCuM" });
-    }
-
-    /// <summary>ifc_list_export_configurations → keeps name + ifcVersion (drops description text).</summary>
-    private static JToken ShapeIfcExportConfigurations(JToken payload)
-    {
-        return StripFromArrayProperty(payload, "configurations",
-            keep: new[] { "name", "ifcVersion" });
-    }
-
-    /// <summary>ifc_analyze_rebuildability → keeps id/category/strategy/confidence per result.</summary>
-    private static JToken ShapeIfcAnalyzeRebuildability(JToken payload)
-    {
-        return StripFromArrayProperty(payload, "results",
-            keep: new[] { "elementId", "name", "category", "ifcEntity", "geometryType", "rebuildStrategy", "rebuildConfidence" });
-    }
-
-    /// <summary>ifc_list_rebuild_candidates → keeps elementId/category/geometry/confidence.</summary>
-    private static JToken ShapeIfcListRebuildCandidates(JToken payload)
-    {
-        return StripFromArrayProperty(payload, "candidates",
-            keep: new[] { "elementId", "name", "category", "geometryType", "rebuildConfidence" });
-    }
-
-    /// <summary>workflow_model_audit → trims warnings/inPlaceFamilies/unusedFamilies arrays. Top-level counters preserved by DeepClone.</summary>
-    private static JToken ShapeWorkflowModelAudit(JToken payload)
-    {
-        if (payload is not JObject obj) return payload;
-        var result = (JObject)obj.DeepClone();
-        if (result["warnings"] is JArray warnings)
-        {
-            result["warnings"] = new JArray(warnings.Children<JObject>().Select(w => new JObject
-            {
-                ["description"] = w["description"],
-                ["count"] = w["count"]
-            }));
-        }
-        if (result["inPlaceFamilies"] is JArray inPlace)
-        {
-            result["inPlaceFamilies"] = new JArray(inPlace.Children<JObject>().Select(f => new JObject
-            {
-                ["name"] = f["name"],
-                ["category"] = f["category"]
-            }));
-        }
-        if (result["unusedFamilies"] is JArray unused)
-        {
-            result["unusedFamilies"] = new JArray(unused.Children<JObject>().Select(f => new JObject
-            {
-                ["name"] = f["name"],
-                ["category"] = f["category"]
-            }));
-        }
-        return result;
     }
 
     /// <summary>
