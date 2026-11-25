@@ -18,16 +18,16 @@ public static class ToolCatalog
         "find_tools", "run_tool",
         // read
         "get_project_info", "get_current_view_info", "get_current_view_elements", "get_selected_elements",
-        "get_element_parameters", "get_element_solid_geometry", "ai_element_filter", "filter_by_parameter_value",
+        "get_element_parameters", "get_geometry", "ai_element_filter", "filter_by_parameter_value",
         "get_linked_elements", "get_linked_file_instances", "get_elements_in_spatial_volume",
         "get_available_family_types", "measure_between_elements", "export_elements_data", "get_warnings",
         // write
         "set_element_parameters", "modify_element", "operate_element", "delete_element", "override_graphics",
-        "create_filled_regions", "create_line_based_element", "create_dimensions", "create_text_note",
+        "create_detail_items", "place_instances", "create_dimensions",
         "send_code_to_revit"
     };
 
-    [McpServerTool(Name = "find_tools", ReadOnly = true), Description("Find more Revit tools (sheets, schedules, rooms, links, materials, families, Excel, worksets, clash...). Returns signatures to use with run_tool. Empty query lists all names.")]
+    [McpServerTool(Name = "find_tools", ReadOnly = true), Description("Find more Revit tools (sheets, schedules, rooms, links, materials, families, Excel, worksets, clash, walls, new families, hidden elements...). Returns signatures to use with run_tool. Empty query lists all names.")]
     public static string FindTools(
         RequestContext<CallToolRequestParams> context,
         [Description("Keywords, e.g. 'sheet viewport'")] string query = "")

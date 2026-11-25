@@ -12,6 +12,7 @@ An MCP server and add-in that lets AI assistants work with Autodesk Revit.
 - Script modes `manual` and `readonly` work; unknown modes are rejected.
 - Scripts get 280 seconds, including confirmation time.
 - New tool: `create_filled_regions` (batch, one undo step).
+- Tools that replace common scripts: `get_geometry`, `create_detail_items`, `place_instances`, `create_family`, `explain_visibility`.
 - Tests no longer write to the user's audit log.
 - Connection failures return a clear message (for example, when the Revit switch is off).
 - Dedicated RevitFlux ribbon tab with its own icons.
